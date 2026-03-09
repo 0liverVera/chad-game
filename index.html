@@ -585,7 +585,7 @@ const MAX_CANDLES = 60;
 async function initChart() {
   chartCandles = [];
   try {
-    const res = await fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=60');
+    const res = await fetch('https://api.binance.us/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=60');
     const data = await res.json();
     chartCandles = data.map(k => ({
       t: k[0],
@@ -759,7 +759,7 @@ function updateBtcCandle(t, o, h, l, c) {
 
 async function pollBtcPrice() {
   try {
-    const res = await fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=2');
+    const res = await fetch('https://api.binance.us/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=2');
     const data = await res.json();
     const k = data[data.length - 1];
     updateBtcCandle(k[0], parseFloat(k[1]), parseFloat(k[2]), parseFloat(k[3]), parseFloat(k[4]));
@@ -781,7 +781,7 @@ function connectBinanceWS() {
   if (btcWs) { try { btcWs.close(); } catch(e){} btcWs = null; }
 
   // Port 443 is far more reliable than 9443 (avoids firewall blocks)
-  btcWs = new WebSocket('wss://stream.binance.com:443/ws/btcusdt@kline_1m');
+  btcWs = new WebSocket('wss://stream.binance.us:9443/ws/btcusdt@kline_1m');
 
   // If no data arrives within 8s, fall back to REST polling
   let wsTimeout = setTimeout(() => {
