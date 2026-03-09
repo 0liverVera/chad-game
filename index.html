@@ -733,46 +733,73 @@ function drawChart() {
 }
 
 // ══════════════════════════════════════════
-// PRICE FEED — Binance WebSocket (real-time)
+// PRICE FEED — Binance WebSocket + REST fallback
 // ══════════════════════════════════════════
+let pricePoller = null;
+
+function updateBtcCandle(t, o, h, l, c) {
+  prevBtcPrice = btcPrice;
+  btcPrice = c;
+  const candle = { t, o, h, l, c };
+  const last = chartCandles[chartCandles.length - 1];
+  if (last && last.t === candle.t) {
+    chartCandles[chartCandles.length - 1] = candle;
+  } else {
+    chartCandles.push(candle);
+    if (chartCandles.length > MAX_CANDLES) chartCandles.shift();
+  }
+  const chg = ((c - o) / o) * 100;
+  const sign = chg >= 0 ? '+' : '';
+  document.getElementById('chart-price').textContent = '$' + c.toLocaleString('en-US', {maximumFractionDigits: 0});
+  const badge = document.getElementById('chart-badge');
+  badge.textContent = sign + chg.toFixed(3) + '%';
+  badge.className = 'price-badge ' + (chg >= 0 ? 'up' : 'dn');
+  drawChart();
+}
+
+async function pollBtcPrice() {
+  try {
+    const res = await fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=2');
+    const data = await res.json();
+    const k = data[data.length - 1];
+    updateBtcCandle(k[0], parseFloat(k[1]), parseFloat(k[2]), parseFloat(k[3]), parseFloat(k[4]));
+  } catch(e) { console.warn('[Price Poll] failed', e); }
+}
+
+function startPricePoll() {
+  if (pricePoller) return;
+  console.log('[BTC] WebSocket unavailable — using REST polling');
+  pollBtcPrice();
+  pricePoller = setInterval(pollBtcPrice, 5000);
+}
+
+function stopPricePoll() {
+  if (pricePoller) { clearInterval(pricePoller); pricePoller = null; }
+}
+
 function connectBinanceWS() {
   if (btcWs) { try { btcWs.close(); } catch(e){} btcWs = null; }
 
-  btcWs = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@kline_1m');
+  // Port 443 is far more reliable than 9443 (avoids firewall blocks)
+  btcWs = new WebSocket('wss://stream.binance.com:443/ws/btcusdt@kline_1m');
 
-  btcWs.onopen = () => {
-    console.log('[BTC WS] connected');
-  };
+  // If no data arrives within 8s, fall back to REST polling
+  let wsTimeout = setTimeout(() => {
+    console.warn('[BTC WS] No data in 8s — starting poll fallback');
+    startPricePoll();
+  }, 8000);
+
+  btcWs.onopen = () => { console.log('[BTC WS] connected'); };
 
   btcWs.onmessage = (event) => {
+    if (wsTimeout) { clearTimeout(wsTimeout); wsTimeout = null; }
+    stopPricePoll(); // WS is working, no need to poll
+
     const msg = JSON.parse(event.data);
     const k = msg.k;
     if (!k) return;
 
-    prevBtcPrice = btcPrice;
-    const newPrice = parseFloat(k.c);
-    btcPrice = newPrice;
-
-    const candle = { t: k.t, o: parseFloat(k.o), h: parseFloat(k.h), l: parseFloat(k.l), c: newPrice };
-
-    // Update current candle or append new one
-    const last = chartCandles[chartCandles.length - 1];
-    if (last && last.t === candle.t) {
-      chartCandles[chartCandles.length - 1] = candle;
-    } else {
-      chartCandles.push(candle);
-      if (chartCandles.length > MAX_CANDLES) chartCandles.shift();
-    }
-
-    // Update price badge (change from candle open)
-    const chg = ((newPrice - parseFloat(k.o)) / parseFloat(k.o)) * 100;
-    const sign = chg >= 0 ? '+' : '';
-    document.getElementById('chart-price').textContent = '$' + newPrice.toLocaleString('en-US', {maximumFractionDigits: 0});
-    const badge = document.getElementById('chart-badge');
-    badge.textContent = sign + chg.toFixed(3) + '%';
-    badge.className = 'price-badge ' + (chg >= 0 ? 'up' : 'dn');
-
-    drawChart();
+    updateBtcCandle(k.t, parseFloat(k.o), parseFloat(k.h), parseFloat(k.l), parseFloat(k.c));
 
     // Simulate bot bets trickling in
     if (Math.random() < 0.12) {
@@ -783,11 +810,17 @@ function connectBinanceWS() {
     }
   };
 
-  btcWs.onerror = () => { console.warn('[BTC WS] error — will retry'); };
+  btcWs.onerror = () => {
+    console.warn('[BTC WS] error — starting poll fallback');
+    if (wsTimeout) { clearTimeout(wsTimeout); wsTimeout = null; }
+    startPricePoll();
+  };
 
   btcWs.onclose = () => {
     console.warn('[BTC WS] closed — reconnecting in 5s');
+    if (wsTimeout) { clearTimeout(wsTimeout); wsTimeout = null; }
     if (S.wallet) setTimeout(connectBinanceWS, 5000);
+    else startPricePoll();
   };
 }
 
@@ -1159,7 +1192,7 @@ function toast(msg){
 // Auto-reconnect
 window.addEventListener('load', async () => {
   weeklyCD();
-  window.addEventListener('resize', () => { if(chartData.length) drawChart(); });
+  window.addEventListener('resize', () => { if(chartCandles.length) drawChart(); });
   const ph = getPhantom();
   if (ph?.isConnected) {
     try {
