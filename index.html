@@ -3,690 +3,882 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>$CHAD Game — Minigames</title>
+<title>$CHAD Arcade — Candle TV</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:#06100a; --bg1:#0a1a0d; --bg2:#0f2213;
   --green:#00e554; --bright:#00ff5e; --gdim:rgba(0,229,84,.1); --glow:rgba(0,229,84,.25);
-  --border:rgba(0,229,84,.1); --border2:rgba(0,229,84,.2);
+  --border:rgba(0,229,84,.12); --border2:rgba(0,229,84,.22);
   --white:#eef5ee; --muted:#3d6645; --muted2:#527a5a;
   --red:#ff3a3a; --gold:#f5c518;
-  --r:12px;
+  --r:14px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--white);font-family:'Manrope',sans-serif;overflow-x:hidden;min-height:100vh;}
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+html,body{min-height:100vh;background:var(--bg);color:var(--white);font-family:'Manrope',sans-serif;overflow-x:hidden;}
 
 /* NAV */
-nav{position:sticky;top:0;z-index:200;height:62px;padding:0 32px;display:flex;justify-content:space-between;align-items:center;background:rgba(6,16,10,.95);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:var(--bright);display:flex;align-items:center;gap:8px;}
+nav{position:sticky;top:0;z-index:200;height:60px;padding:0 28px;display:flex;justify-content:space-between;align-items:center;background:rgba(6,16,10,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--bright);display:flex;align-items:center;gap:8px;}
 .logo-pip{width:7px;height:7px;border-radius:50%;background:var(--bright);animation:pip 2s ease infinite;box-shadow:0 0 8px var(--green);}
-.nav-r{display:flex;align-items:center;gap:10px;}
-.btn{padding:9px 20px;border-radius:100px;font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
-.btn-o{background:transparent;color:var(--muted2);border:1px solid var(--border);}
-.btn-o:hover{border-color:var(--green);color:var(--green);}
+.nav-link{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:color .2s;}
+.nav-link:hover{color:var(--bright);}
 
-/* HERO */
-.hero{text-align:center;padding:64px 24px 48px;position:relative;}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 55% at 50% -5%,rgba(0,229,84,.08),transparent 65%);pointer-events:none;}
-.hero-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:6px;color:var(--green);text-transform:uppercase;margin-bottom:16px;display:inline-flex;align-items:center;gap:12px;}
-.hero-tag::before,.hero-tag::after{content:'';width:24px;height:1px;background:var(--green);opacity:.4;}
-.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,10vw,110px);line-height:.9;letter-spacing:4px;margin-bottom:14px;}
-.hero h1 .g{color:var(--bright);text-shadow:0 0 50px rgba(0,255,94,.3);}
-.hero-sub{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted2);line-height:1.9;}
+/* SCREENS */
+.screen{display:none;}
+.screen.active{display:block;}
+#screen-game.active,#screen-gameover.active{display:flex;}
 
-/* GAME HUB */
-.hub{max-width:900px;margin:0 auto;padding:40px 24px 0;}
-.hub-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:6px;color:var(--green);text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:14px;}
-.hub-lbl::before,.hub-lbl::after{content:'';flex:1;height:1px;background:var(--border2);}
-.hub-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px;}
-.hub-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
-.hub-card.active{border-color:var(--green);background:rgba(0,229,84,.05);}
-.hub-card.active::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--bright),transparent);}
-.hub-card.soon{opacity:.4;cursor:not-allowed;}
-.hub-ico{font-size:32px;display:block;margin-bottom:8px;}
-.hub-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--bright);}
-.hub-desc{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:1px;margin-top:4px;}
-.hub-badge{position:absolute;top:10px;right:10px;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;padding:3px 8px;border-radius:100px;}
-.hub-badge.live{background:rgba(0,229,84,.15);color:var(--green);border:1px solid var(--border2);}
-.hub-badge.coming{background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border);}
+/* ── MENU ── */
+.banner{background:linear-gradient(135deg,rgba(245,197,24,.08),rgba(0,229,84,.05));border-bottom:1px solid rgba(245,197,24,.2);padding:13px 28px;text-align:center;}
+.banner p{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);letter-spacing:1px;line-height:1.7;}
+.banner strong{color:#fff;}
 
-/* GAME AREA */
-.game-area{max-width:900px;margin:0 auto;padding:0 24px 60px;}
-.game-frame{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;position:relative;}
-.game-frame::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--bright),transparent);opacity:.5;pointer-events:none;}
-canvas{display:block;width:100%;image-rendering:pixelated;}
+.menu-hero{text-align:center;padding:48px 24px 32px;background:radial-gradient(ellipse 70% 55% at 50% -5%,rgba(0,229,84,.09),transparent 65%);}
+.menu-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(58px,13vw,130px);line-height:.87;letter-spacing:4px;margin-bottom:10px;}
+.menu-hero h1 .g{color:var(--bright);text-shadow:0 0 50px rgba(0,255,94,.3);}
+.menu-tag{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);letter-spacing:4px;text-transform:uppercase;}
 
-/* TOAST */
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--bg1);border:1px solid var(--green);border-radius:100px;padding:12px 24px;font-family:'DM Mono',monospace;font-size:12px;color:var(--bright);letter-spacing:1px;z-index:999;transition:transform .35s cubic-bezier(.16,1,.3,1);white-space:nowrap;box-shadow:0 12px 40px rgba(0,0,0,.5);}
-#toast.show{transform:translateX(-50%) translateY(0);}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;max-width:940px;margin:0 auto;padding:0 22px 60px;}
+.gcard{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .22s;position:relative;}
+.gcard:hover{border-color:var(--green);transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,229,84,.13);}
+.gcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--bright),transparent);opacity:0;transition:opacity .2s;}
+.gcard:hover::before{opacity:1;}
+.gcard-preview{height:150px;display:flex;align-items:center;justify-content:center;font-size:68px;background:var(--bg2);position:relative;overflow:hidden;}
+.gcard-preview::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(0,229,84,.06),transparent 70%);}
+.gcard-body{padding:20px;}
+.gcard-num{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--green);text-transform:uppercase;margin-bottom:5px;}
+.gcard-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:6px;}
+.gcard-desc{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);line-height:1.75;margin-bottom:16px;}
+.gcard-foot{display:flex;justify-content:space-between;align-items:center;}
+.gcard-hs{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);}
+.gcard-hs span{color:var(--gold);font-weight:600;}
+.play-btn{padding:9px 22px;background:var(--green);color:#06100a;font-family:'Manrope',sans-serif;font-size:13px;font-weight:800;border:none;border-radius:100px;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.play-btn:hover{background:var(--bright);box-shadow:0 4px 16px var(--glow);}
+
+/* ── GAME SCREEN ── */
+#screen-game{min-height:calc(100vh - 60px);align-items:center;justify-content:center;padding:20px;}
+.canvas-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 0 60px rgba(0,229,84,.07);}
+canvas{display:block;}
+
+/* ── GAME OVER ── */
+#screen-gameover{min-height:calc(100vh - 60px);align-items:center;justify-content:center;padding:24px;flex-direction:column;gap:0;}
+
+/* Receipt */
+.receipt{background:#f4efe4;color:#111;width:310px;border-radius:3px;padding:26px 22px;font-family:'DM Mono',monospace;position:relative;box-shadow:0 24px 70px rgba(0,0,0,.6);flex-shrink:0;}
+.receipt::before{content:'';position:absolute;top:-9px;left:0;right:0;height:9px;background:repeating-linear-gradient(90deg,transparent 0px,transparent 9px,#f4efe4 9px,#f4efe4 18px);clip-path:polygon(0 100%,3% 0,6% 100%,9% 0,12% 100%,15% 0,18% 100%,21% 0,24% 100%,27% 0,30% 100%,33% 0,36% 100%,39% 0,42% 100%,45% 0,48% 100%,51% 0,54% 100%,57% 0,60% 100%,63% 0,66% 100%,69% 0,72% 100%,75% 0,78% 100%,81% 0,84% 100%,87% 0,90% 100%,93% 0,96% 100%,99% 0,100% 100%);}
+.receipt::after{content:'';position:absolute;bottom:-9px;left:0;right:0;height:9px;background:repeating-linear-gradient(90deg,transparent 0px,transparent 9px,#f4efe4 9px,#f4efe4 18px);clip-path:polygon(0 0,3% 100%,6% 0,9% 100%,12% 0,15% 100%,18% 0,21% 100%,24% 0,27% 100%,30% 0,33% 100%,36% 0,39% 100%,42% 0,45% 100%,48% 0,51% 100%,54% 0,57% 100%,60% 0,63% 100%,66% 0,69% 100%,72% 0,75% 100%,78% 0,81% 100%,84% 0,87% 100%,90% 0,93% 100%,96% 0,99% 100%,100% 0);}
+
+.r-logo{text-align:center;font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-bottom:3px;}
+.r-sub{text-align:center;font-size:9px;letter-spacing:2px;color:#888;margin-bottom:14px;}
+.r-divider{border:none;border-top:1px dashed #c0b89a;margin:10px 0;}
+.r-row{display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px;color:#555;}
+.r-row.bold{font-weight:700;color:#111;}
+.r-score-lbl{text-align:center;font-size:9px;letter-spacing:3px;color:#999;margin:10px 0 2px;text-transform:uppercase;}
+.r-score{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:60px;letter-spacing:-1px;color:#111;line-height:1;margin-bottom:6px;}
+.r-barcode{text-align:center;margin:12px 0 6px;}
+.r-barcode svg{width:150px;height:32px;}
+.r-powered{text-align:center;font-size:8px;color:#aaa;letter-spacing:2px;text-transform:uppercase;margin-top:8px;}
+.r-weekly{background:#111;color:#00e554;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.5px;text-align:center;padding:9px 10px;line-height:1.7;margin-top:12px;border-radius:2px;}
+.r-weekly strong{color:#fff;}
+
+/* GO Buttons */
+.go-btns{display:flex;gap:10px;margin-top:26px;flex-wrap:wrap;justify-content:center;}
+.share-btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;background:#000;color:#fff;font-family:'Manrope',sans-serif;font-size:14px;font-weight:800;border:none;border-radius:100px;cursor:pointer;text-decoration:none;transition:all .2s;}
+.share-btn:hover{background:#1a1a1a;transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.5);}
+.retry-btn{padding:13px 22px;background:var(--green);color:#06100a;font-family:'Manrope',sans-serif;font-size:14px;font-weight:800;border:none;border-radius:100px;cursor:pointer;transition:all .2s;}
+.retry-btn:hover{background:var(--bright);box-shadow:0 4px 16px var(--glow);}
+.menu-btn{padding:13px 22px;background:transparent;color:var(--muted2);font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;border:1px solid var(--border);border-radius:100px;cursor:pointer;transition:all .2s;}
+.menu-btn:hover{border-color:var(--green);color:var(--green);}
 
 /* FOOTER */
-footer{border-top:1px solid var(--border);padding:30px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;max-width:900px;margin:0 auto;}
-.f-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--bright);letter-spacing:2px;}
-.f-disc{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.7;max-width:380px;text-align:center;}
-.f-links{display:flex;gap:18px;}
+footer{border-top:1px solid var(--border);padding:26px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;max-width:940px;margin:0 auto;}
+.f-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--bright);letter-spacing:2px;}
+.f-disc{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.7;max-width:360px;text-align:center;}
+.f-links{display:flex;gap:16px;}
 .f-links a{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);text-decoration:none;letter-spacing:2px;text-transform:uppercase;transition:color .2s;}
 .f-links a:hover{color:var(--bright);}
 
 @keyframes pip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
-
-@media(max-width:640px){
-  nav{padding:0 16px;}
-  .hub-cards{grid-template-columns:repeat(3,1fr);gap:8px;}
-  .hub-name{font-size:16px;}
-  .hub-ico{font-size:24px;}
-  .game-area,.hub{padding-left:12px;padding-right:12px;}
-  footer{flex-direction:column;text-align:center;}
-  .f-links{justify-content:center;}
-}
+@media(max-width:640px){nav{padding:0 14px;}.games-grid{grid-template-columns:1fr;}.menu-hero{padding:34px 18px 24px;}footer{flex-direction:column;text-align:center;}.f-links{justify-content:center;}}
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="logo"><div class="logo-pip"></div>$CHAD</div>
-  <div class="nav-r">
-    <a href="https://candle.tv" target="_blank" class="btn btn-o" style="text-decoration:none">Candle.tv</a>
-  </div>
+  <div class="logo"><div class="logo-pip"></div>$CHAD ARCADE</div>
+  <a class="nav-link" href="https://candle.tv" target="_blank">Candle.tv</a>
 </nav>
 
-<div id="toast"></div>
+<!-- ══ MENU ══ -->
+<div id="screen-menu" class="screen active">
+  <div class="banner">
+    <p>🏆 <strong>Top 3 scores on X this week win $100 in $CHAD</strong><br>
+    Post your screenshot with <strong>$CHAD</strong> to enter · Winners announced every Sunday</p>
+  </div>
+  <div class="menu-hero">
+    <h1><span class="g">$</span>CHAD<br>ARCADE</h1>
+    <p class="menu-tag">Candle TV · 3 Minigames · Weekly Prizes</p>
+  </div>
+  <div class="games-grid">
+    <div class="gcard" onclick="startGame('flappy')">
+      <div class="gcard-preview">🧔</div>
+      <div class="gcard-body">
+        <div class="gcard-num">Game 01</div>
+        <div class="gcard-title">Flappy Beard</div>
+        <div class="gcard-desc">Tap to flap through jeet obstacles. Speed increases every 10 points.</div>
+        <div class="gcard-foot">
+          <div class="gcard-hs">Best: <span id="hs-flappy">0</span></div>
+          <button class="play-btn" onclick="event.stopPropagation();startGame('flappy')">PLAY →</button>
+        </div>
+      </div>
+    </div>
+    <div class="gcard" onclick="startGame('dodge')">
+      <div class="gcard-preview">💨</div>
+      <div class="gcard-body">
+        <div class="gcard-num">Game 02</div>
+        <div class="gcard-title">Chad Dodge</div>
+        <div class="gcard-desc">Dodge falling JEET blocks &amp; red candles. Catch green candles for bonus points.</div>
+        <div class="gcard-foot">
+          <div class="gcard-hs">Best: <span id="hs-dodge">0</span></div>
+          <button class="play-btn" onclick="event.stopPropagation();startGame('dodge')">PLAY →</button>
+        </div>
+      </div>
+    </div>
+    <div class="gcard" onclick="startGame('moonrug')">
+      <div class="gcard-preview">🌙</div>
+      <div class="gcard-body">
+        <div class="gcard-num">Game 03</div>
+        <div class="gcard-title">Moon or Rug</div>
+        <div class="gcard-desc">Spinning coin reflex game. Tap MOON or RUG before time runs out. Streaks earn bonuses.</div>
+        <div class="gcard-foot">
+          <div class="gcard-hs">Best: <span id="hs-moonrug">0</span></div>
+          <button class="play-btn" onclick="event.stopPropagation();startGame('moonrug')">PLAY →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <div class="f-logo">$CHAD</div>
+    <p class="f-disc">$CHAD is a memecoin on Solana. Not financial advice. Never invest more than you can afford to lose.</p>
+    <div class="f-links"><a href="#">Twitter</a><a href="#">Telegram</a><a href="https://candle.tv" target="_blank">Candle</a></div>
+  </footer>
+</div>
 
-<section class="hero">
-  <p class="hero-tag">Candle TV · Minigames</p>
-  <h1><span class="g">$</span>CHAD<br>ARCADE</h1>
-  <p class="hero-sub">Candle TV themed minigames. More dropping soon.</p>
-</section>
-
-<div class="hub">
-  <div class="hub-lbl">Choose a Game</div>
-  <div class="hub-cards">
-    <div class="hub-card active">
-      <span class="hub-badge live">LIVE</span>
-      <span class="hub-ico">🧔</span>
-      <div class="hub-name">Flappy Beard</div>
-      <div class="hub-desc">Dodge the candles</div>
-    </div>
-    <div class="hub-card soon">
-      <span class="hub-badge coming">SOON</span>
-      <span class="hub-ico">🕯️</span>
-      <div class="hub-name">Coming Soon</div>
-      <div class="hub-desc">Another game</div>
-    </div>
-    <div class="hub-card soon">
-      <span class="hub-badge coming">SOON</span>
-      <span class="hub-ico">🔥</span>
-      <div class="hub-name">Coming Soon</div>
-      <div class="hub-desc">Another game</div>
-    </div>
+<!-- ══ GAME ══ -->
+<div id="screen-game" class="screen">
+  <div class="canvas-wrap">
+    <canvas id="gc"></canvas>
   </div>
 </div>
 
-<div class="game-area">
-  <div class="game-frame">
-    <canvas id="game-canvas"></canvas>
+<!-- ══ GAME OVER ══ -->
+<div id="screen-gameover" class="screen">
+  <div class="receipt">
+    <div class="r-logo">$CHAD ARCADE</div>
+    <div class="r-sub" id="go-game-name">FLAPPY BEARD</div>
+    <hr class="r-divider">
+    <div class="r-row"><span>PLAYER</span><span>ANON CHAD</span></div>
+    <div class="r-row"><span>DATE</span><span id="go-date"></span></div>
+    <div class="r-row bold"><span>SESSION BEST</span><span id="go-best">0</span></div>
+    <hr class="r-divider">
+    <div class="r-score-lbl">FINAL SCORE</div>
+    <div class="r-score" id="go-score">0</div>
+    <hr class="r-divider">
+    <div class="r-barcode">
+      <svg viewBox="0 0 150 32">
+        <rect x="0"  y="0" width="2"  height="26" fill="#222"/>
+        <rect x="4"  y="0" width="1"  height="26" fill="#222"/>
+        <rect x="7"  y="0" width="3"  height="26" fill="#222"/>
+        <rect x="12" y="0" width="1"  height="26" fill="#222"/>
+        <rect x="15" y="0" width="2"  height="26" fill="#222"/>
+        <rect x="19" y="0" width="4"  height="26" fill="#222"/>
+        <rect x="25" y="0" width="1"  height="26" fill="#222"/>
+        <rect x="28" y="0" width="3"  height="26" fill="#222"/>
+        <rect x="33" y="0" width="2"  height="26" fill="#222"/>
+        <rect x="37" y="0" width="1"  height="26" fill="#222"/>
+        <rect x="41" y="0" width="4"  height="26" fill="#222"/>
+        <rect x="47" y="0" width="2"  height="26" fill="#222"/>
+        <rect x="51" y="0" width="1"  height="26" fill="#222"/>
+        <rect x="54" y="0" width="3"  height="26" fill="#222"/>
+        <rect x="59" y="0" width="2"  height="26" fill="#222"/>
+        <rect x="63" y="0" width="1"  height="26" fill="#222"/>
+        <rect x="67" y="0" width="4"  height="26" fill="#222"/>
+        <rect x="73" y="0" width="2"  height="26" fill="#222"/>
+        <rect x="77" y="0" width="1"  height="26" fill="#222"/>
+        <rect x="80" y="0" width="3"  height="26" fill="#222"/>
+        <rect x="85" y="0" width="2"  height="26" fill="#222"/>
+        <rect x="89" y="0" width="4"  height="26" fill="#222"/>
+        <rect x="95" y="0" width="1"  height="26" fill="#222"/>
+        <rect x="98" y="0" width="3"  height="26" fill="#222"/>
+        <rect x="103" y="0" width="2" height="26" fill="#222"/>
+        <rect x="107" y="0" width="1" height="26" fill="#222"/>
+        <rect x="111" y="0" width="4" height="26" fill="#222"/>
+        <rect x="117" y="0" width="2" height="26" fill="#222"/>
+        <rect x="121" y="0" width="1" height="26" fill="#222"/>
+        <rect x="124" y="0" width="3" height="26" fill="#222"/>
+        <rect x="129" y="0" width="2" height="26" fill="#222"/>
+        <rect x="133" y="0" width="1" height="26" fill="#222"/>
+        <rect x="137" y="0" width="4" height="26" fill="#222"/>
+        <rect x="143" y="0" width="2" height="26" fill="#222"/>
+        <rect x="147" y="0" width="3" height="26" fill="#222"/>
+        <text x="75" y="32" text-anchor="middle" font-family="monospace" font-size="7" fill="#888">$CHAD-ARCADE-2026</text>
+      </svg>
+    </div>
+    <div class="r-powered">powered by candle.tv</div>
+    <div class="r-weekly">
+      📢 Post your score on X with <strong>$CHAD</strong> to enter<br>
+      this week's competition — top 3 scores win<br>
+      <strong>$CHAD airdrop every Sunday</strong>
+    </div>
+  </div>
+  <div class="go-btns">
+    <a class="share-btn" id="go-share" href="#" target="_blank">
+      <span style="font-weight:900;font-size:15px;">𝕏</span> Share Score
+    </a>
+    <button class="retry-btn" id="go-retry">Play Again</button>
+    <button class="menu-btn" onclick="showMenu()">← Menu</button>
   </div>
 </div>
-
-<footer>
-  <div class="f-logo">$CHAD</div>
-  <p class="f-disc">$CHAD is a memecoin on Solana. Not financial advice. Never invest more than you can afford to lose.</p>
-  <div class="f-links">
-    <a href="#">Twitter</a>
-    <a href="#">Telegram</a>
-    <a href="https://candle.tv" target="_blank">Candle</a>
-  </div>
-</footer>
 
 <script>
 // ══════════════════════════════════════════
-// FLAPPY BEARD
+// CORE
 // ══════════════════════════════════════════
-const canvas = document.getElementById('game-canvas');
+const SITE = 'https://0liverVera.github.io/chad-game';
+const GW = 420, GH = 560;
+const canvas = document.getElementById('gc');
 const ctx = canvas.getContext('2d');
+canvas.width = GW; canvas.height = GH;
 
-const W = 480;
-const H = 540;
-canvas.width = W;
-canvas.height = H;
+let currentGame = null;
+let raf = null;
+let bests = { flappy: 0, dodge: 0, moonrug: 0 };
 
-// ── CONSTANTS ──
-const GRAVITY = 0.45;
-const FLAP_FORCE = -9;
-const PIPE_WIDTH = 64;
-const PIPE_GAP = 158;
-const PIPE_SPEED = 2.6;
-const PIPE_INTERVAL = 100; // frames between spawns
-const BIRD_X = 90;
-const BIRD_R = 22;
-
-// ── STATE ──
-let gameState = 'idle'; // idle | playing | dead
-let score = 0;
-let best = parseInt(localStorage.getItem('fb_best') || '0');
-
-const bird = { y: H / 2, vy: 0, rot: 0 };
-let pipes = [];
-let pipeTimer = 0;
-let particles = [];
-let bgStars = [];
-let frameCount = 0;
-let deathTimer = 0;
-
-// ── INIT STARS ──
-function initStars() {
-  bgStars = [];
-  for (let i = 0; i < 55; i++) {
-    bgStars.push({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      r: Math.random() * 1.5 + 0.3,
-      a: Math.random(),
-      speed: Math.random() * 0.008 + 0.004,
-    });
+function loadBests() {
+  for (const g of ['flappy','dodge','moonrug']) {
+    bests[g] = parseInt(localStorage.getItem('chad_b_' + g) || '0');
+    const el = document.getElementById('hs-' + g);
+    if (el) el.textContent = bests[g];
   }
 }
-initStars();
+loadBests();
 
-// ── INPUT ──
-function flap() {
-  if (gameState === 'idle') {
-    gameState = 'playing';
-    bird.vy = FLAP_FORCE;
-  } else if (gameState === 'playing') {
-    bird.vy = FLAP_FORCE;
-    spawnParticles(BIRD_X, bird.y, '#00ff5e', 5);
-  } else if (gameState === 'dead' && deathTimer > 30) {
-    resetGame();
+function saveBest(game, score) {
+  if (score > bests[game]) {
+    bests[game] = score;
+    localStorage.setItem('chad_b_' + game, score);
+    loadBests();
   }
 }
 
-document.addEventListener('keydown', e => {
-  if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); flap(); }
-});
-canvas.addEventListener('click', flap);
-canvas.addEventListener('touchstart', e => { e.preventDefault(); flap(); }, { passive: false });
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showMenu() {
+  stopLoop();
+  clearInputs();
+  loadBests();
+  showScreen('screen-menu');
+}
+
+function startGame(game) {
+  currentGame = game;
+  showScreen('screen-game');
+  stopLoop();
+  clearInputs();
+  if (game === 'flappy') initFlappy();
+  else if (game === 'dodge') initDodge();
+  else if (game === 'moonrug') initMoonRug();
+  startLoop();
+}
+
+function stopLoop() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
+
+let lastTs = 0;
+function startLoop() {
+  lastTs = performance.now();
+  function tick(ts) {
+    const dt = Math.min((ts - lastTs) / 16.667, 3);
+    lastTs = ts;
+    if (currentGame === 'flappy') tickFlappy(dt);
+    else if (currentGame === 'dodge') tickDodge(dt);
+    else if (currentGame === 'moonrug') tickMoonRug(dt);
+    raf = requestAnimationFrame(tick);
+  }
+  raf = requestAnimationFrame(tick);
+}
+
+function clearInputs() {
+  document.onkeydown = null;
+  document.onkeyup = null;
+  canvas.onclick = null;
+  canvas.ontouchstart = null;
+  canvas.ontouchmove = null;
+}
+
+function gameOver(score, gameName, gameKey) {
+  stopLoop();
+  clearInputs();
+  saveBest(gameKey, score);
+
+  document.getElementById('go-game-name').textContent = gameName.toUpperCase();
+  document.getElementById('go-score').textContent = score;
+  document.getElementById('go-best').textContent = bests[gameKey];
+  document.getElementById('go-date').textContent =
+    new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}).toUpperCase();
+
+  const tweet = `I scored ${score} on ${gameName} in the $CHAD Arcade 🎮 can you beat me? play at ${SITE} $CHAD`;
+  document.getElementById('go-share').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweet);
+  document.getElementById('go-retry').onclick = () => startGame(gameKey);
+
+  setTimeout(() => showScreen('screen-gameover'), 900);
+}
 
 // ── PARTICLES ──
-function spawnParticles(x, y, color, count) {
-  for (let i = 0; i < count; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = Math.random() * 3 + 1;
-    particles.push({
-      x, y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed - 1,
-      life: 1,
-      decay: Math.random() * 0.05 + 0.03,
-      r: Math.random() * 3 + 1,
-      color,
-    });
+let parts = [];
+function pSpawn(x, y, col, n, spd = 3) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2, s = Math.random() * spd + 1;
+    parts.push({ x, y, vx: Math.cos(a)*s, vy: Math.sin(a)*s - 1.5, life:1, decay: Math.random()*.045+.025, r: Math.random()*3+1, col });
   }
 }
-
-function updateParticles() {
-  for (let i = particles.length - 1; i >= 0; i--) {
-    const p = particles[i];
-    p.x += p.vx;
-    p.y += p.vy;
-    p.vy += 0.15;
-    p.life -= p.decay;
-    if (p.life <= 0) particles.splice(i, 1);
+function pUpdate(dt) {
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    p.x += p.vx*dt; p.y += p.vy*dt; p.vy += .13*dt; p.life -= p.decay*dt;
+    if (p.life <= 0) parts.splice(i, 1);
   }
 }
-
-function drawParticles() {
-  particles.forEach(p => {
-    ctx.save();
-    ctx.globalAlpha = p.life;
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+function pDraw() {
+  parts.forEach(p => {
+    ctx.save(); ctx.globalAlpha = Math.max(0, p.life);
+    ctx.fillStyle = p.col; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill(); ctx.restore();
   });
 }
 
-// ── RESET ──
-function resetGame() {
-  bird.y = H / 2;
-  bird.vy = 0;
-  bird.rot = 0;
-  pipes = [];
-  particles = [];
-  pipeTimer = 0;
-  score = 0;
-  frameCount = 0;
-  deathTimer = 0;
-  gameState = 'playing';
+// ── SHARED DRAW ──
+function drawBg() {
+  const g = ctx.createLinearGradient(0,0,0,GH);
+  g.addColorStop(0,'#040d07'); g.addColorStop(1,'#061208');
+  ctx.fillStyle = g; ctx.fillRect(0,0,GW,GH);
 }
 
-// ── UPDATE ──
-function update() {
-  frameCount++;
-
-  // Stars twinkle
-  bgStars.forEach(s => {
-    s.a += s.speed;
-  });
-
-  updateParticles();
-
-  if (gameState === 'idle') return;
-
-  if (gameState === 'dead') {
-    deathTimer++;
-    // Bird falls off screen on death
-    bird.vy += GRAVITY * 1.5;
-    bird.y += bird.vy;
-    bird.rot = Math.min(Math.PI / 2, bird.rot + 0.15);
-    return;
-  }
-
-  // Bird physics
-  bird.vy += GRAVITY;
-  bird.y += bird.vy;
-  bird.rot = Math.min(Math.PI * 0.42, Math.max(-0.45, bird.vy * 0.065));
-
-  // Ceiling
-  if (bird.y - BIRD_R < 0) {
-    bird.y = BIRD_R;
-    bird.vy = 2;
-  }
-
-  // Floor death
-  if (bird.y + BIRD_R > H) {
-    die();
-    return;
-  }
-
-  // Spawn pipes
-  pipeTimer++;
-  if (pipeTimer >= PIPE_INTERVAL) {
-    pipeTimer = 0;
-    const minGapY = 80;
-    const maxGapY = H - PIPE_GAP - 80;
-    const gapY = minGapY + Math.random() * (maxGapY - minGapY);
-    pipes.push({ x: W + PIPE_WIDTH, gapY, scored: false });
-  }
-
-  // Update pipes
-  for (let i = pipes.length - 1; i >= 0; i--) {
-    pipes[i].x -= PIPE_SPEED;
-
-    // Score
-    if (!pipes[i].scored && pipes[i].x + PIPE_WIDTH < BIRD_X - BIRD_R) {
-      pipes[i].scored = true;
-      score++;
-      if (score > best) {
-        best = score;
-        localStorage.setItem('fb_best', best);
-      }
-      spawnParticles(BIRD_X, bird.y, '#f5c518', 8);
-    }
-
-    // Collision check
-    const p = pipes[i];
-    if (BIRD_X + BIRD_R > p.x + 4 && BIRD_X - BIRD_R < p.x + PIPE_WIDTH - 4) {
-      if (bird.y - BIRD_R < p.gapY || bird.y + BIRD_R > p.gapY + PIPE_GAP) {
-        die();
-        return;
-      }
-    }
-
-    // Remove off-screen
-    if (p.x + PIPE_WIDTH < -20) pipes.splice(i, 1);
-  }
-}
-
-function die() {
-  gameState = 'dead';
-  deathTimer = 0;
-  spawnParticles(BIRD_X, bird.y, '#ff3a3a', 18);
-  spawnParticles(BIRD_X, bird.y, '#f5c518', 10);
-}
-
-// ── DRAW ──
-function drawBackground() {
-  // Base gradient
-  const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#040d07');
-  bg.addColorStop(1, '#061208');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-
-  // Stars
-  bgStars.forEach(s => {
-    ctx.save();
-    ctx.globalAlpha = (Math.sin(s.a) * 0.5 + 0.5) * 0.6 + 0.1;
-    ctx.fillStyle = '#00ff5e';
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  });
-
-  // Ground
-  const groundGrad = ctx.createLinearGradient(0, H - 28, 0, H);
-  groundGrad.addColorStop(0, '#0a2010');
-  groundGrad.addColorStop(1, '#061208');
-  ctx.fillStyle = groundGrad;
-  ctx.fillRect(0, H - 28, W, 28);
-
-  // Ground line
-  ctx.strokeStyle = 'rgba(0,229,84,0.25)';
-  ctx.lineWidth = 1;
+function rrect(x, y, w, h, r) {
   ctx.beginPath();
-  ctx.moveTo(0, H - 28);
-  ctx.lineTo(W, H - 28);
-  ctx.stroke();
+  ctx.moveTo(x+r, y);
+  ctx.lineTo(x+w-r, y); ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w, y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r, y+h); ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x, y+r); ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
 }
 
-function drawCandle(x, topHeight, bottomY) {
-  const bw = PIPE_WIDTH;
-
-  // ── TOP CANDLE (drips down) ──
-  const topGrad = ctx.createLinearGradient(x, 0, x + bw, 0);
-  topGrad.addColorStop(0,   '#1a0e04');
-  topGrad.addColorStop(0.25,'#c8960a');
-  topGrad.addColorStop(0.5, '#f5c518');
-  topGrad.addColorStop(0.75,'#c8960a');
-  topGrad.addColorStop(1,   '#1a0e04');
-  ctx.fillStyle = topGrad;
-  ctx.fillRect(x, 0, bw, topHeight);
-
-  // Top candle wax drips
-  drawWaxDrips(x, bw, topHeight, true);
-
-  // Top candle wick glow
-  drawFlame(x + bw / 2, topHeight, true);
-
-  // ── BOTTOM CANDLE (rises up) ──
-  const botH = H - bottomY - 28;
-  const botGrad = ctx.createLinearGradient(x, 0, x + bw, 0);
-  botGrad.addColorStop(0,   '#1a0e04');
-  botGrad.addColorStop(0.25,'#c8960a');
-  botGrad.addColorStop(0.5, '#f5c518');
-  botGrad.addColorStop(0.75,'#c8960a');
-  botGrad.addColorStop(1,   '#1a0e04');
-  ctx.fillStyle = botGrad;
-  ctx.fillRect(x, bottomY, bw, botH);
-
-  // Bottom candle wax drips
-  drawWaxDrips(x, bw, bottomY, false);
-
-  // Bottom candle flame (top of bottom candle)
-  drawFlame(x + bw / 2, bottomY, false);
-}
-
-function drawWaxDrips(x, bw, edgeY, isTop) {
-  ctx.fillStyle = 'rgba(245,197,24,0.55)';
-  const drips = [0.15, 0.38, 0.6, 0.82];
-  drips.forEach((pct, i) => {
-    const dx = x + bw * pct;
-    const dLen = 8 + (i % 2) * 6;
-    const dy = isTop ? edgeY : edgeY - dLen;
-    ctx.beginPath();
-    ctx.ellipse(dx, dy + (isTop ? dLen / 2 : dLen / 2), 4, dLen / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-  });
-}
-
-function drawFlame(cx, cy, facingDown) {
-  const dir = facingDown ? 1 : -1;
-
-  // Outer glow
-  const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 28);
-  glow.addColorStop(0, 'rgba(255,140,0,0.45)');
-  glow.addColorStop(0.5, 'rgba(255,80,0,0.15)');
-  glow.addColorStop(1, 'rgba(255,80,0,0)');
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(cx, cy, 28, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Flame body
-  ctx.fillStyle = '#ff6000';
-  ctx.beginPath();
-  ctx.moveTo(cx, cy + dir * 2);
-  ctx.bezierCurveTo(cx + 10, cy + dir * 8, cx + 12, cy + dir * 22, cx, cy + dir * 18);
-  ctx.bezierCurveTo(cx - 12, cy + dir * 22, cx - 10, cy + dir * 8, cx, cy + dir * 2);
-  ctx.fill();
-
-  // Inner flame
-  ctx.fillStyle = '#ffd700';
-  ctx.beginPath();
-  ctx.moveTo(cx, cy + dir * 3);
-  ctx.bezierCurveTo(cx + 5, cy + dir * 9, cx + 5, cy + dir * 16, cx, cy + dir * 14);
-  ctx.bezierCurveTo(cx - 5, cy + dir * 16, cx - 5, cy + dir * 9, cx, cy + dir * 3);
-  ctx.fill();
-
-  // Core
-  ctx.fillStyle = '#fffad0';
-  ctx.beginPath();
-  ctx.ellipse(cx, cy + dir * 8, 2.5, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-}
-
-function drawBird() {
-  ctx.save();
-  ctx.translate(BIRD_X, bird.y);
-  ctx.rotate(bird.rot);
-
-  // Shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.2)';
-  ctx.beginPath();
-  ctx.ellipse(4, BIRD_R + 4, BIRD_R * 0.8, 6, 0, 0, Math.PI * 2);
-  ctx.fill();
-
+function drawChad(x, y, r, rot) {
+  ctx.save(); ctx.translate(x, y); if (rot) ctx.rotate(rot);
   // Head
-  const headGrad = ctx.createRadialGradient(-5, -6, 2, 0, 0, BIRD_R);
-  headGrad.addColorStop(0, '#ffe0a0');
-  headGrad.addColorStop(1, '#d4a017');
-  ctx.fillStyle = headGrad;
-  ctx.beginPath();
-  ctx.arc(0, 0, BIRD_R, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = '#b8860b';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
+  const hg = ctx.createRadialGradient(-r*.25,-r*.28,r*.08,0,0,r);
+  hg.addColorStop(0,'#ffe0a0'); hg.addColorStop(1,'#d4a017');
+  ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#b8860b'; ctx.lineWidth = 1.5; ctx.stroke();
   // Eyes
   ctx.fillStyle = '#06100a';
-  ctx.beginPath(); ctx.arc(-8, -5, 4.5, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(7, -5, 4.5, 0, Math.PI * 2); ctx.fill();
-
-  // Eye whites / shine
+  ctx.beginPath(); ctx.arc(-r*.36,-r*.22,r*.2,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(r*.32,-r*.22,r*.2,0,Math.PI*2); ctx.fill();
   ctx.fillStyle = '#fff';
-  ctx.beginPath(); ctx.arc(-6.5, -6.5, 1.8, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(8.5, -6.5, 1.8, 0, Math.PI * 2); ctx.fill();
-
-  // Nose beak
-  ctx.fillStyle = '#ff8c00';
-  ctx.beginPath();
-  ctx.moveTo(0, -1);
-  ctx.lineTo(14, 1);
-  ctx.lineTo(0, 4);
-  ctx.closePath();
-  ctx.fill();
-
-  // Beard base
-  ctx.fillStyle = '#5a3008';
-  ctx.beginPath();
-  ctx.ellipse(0, 14, 18, 13, 0, 0, Math.PI);
-  ctx.fill();
-
-  // Beard highlight strands
-  const strandCol = '#3d1f04';
-  ctx.strokeStyle = strandCol;
-  ctx.lineWidth = 1.8;
-  ctx.lineCap = 'round';
-  [[-10, 12, -8, 24], [-5, 14, -4, 26], [0, 15, 0, 27], [5, 14, 4, 26], [10, 12, 8, 24]].forEach(([x1, y1, x2, y2]) => {
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.quadraticCurveTo(x1 * 1.1, (y1 + y2) / 2, x2, y2);
-    ctx.stroke();
+  ctx.beginPath(); ctx.arc(-r*.28,-r*.30,r*.08,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(r*.40,-r*.30,r*.08,0,Math.PI*2); ctx.fill();
+  // Beak
+  ctx.fillStyle = '#ff8c00'; ctx.beginPath();
+  ctx.moveTo(0,-r*.05); ctx.lineTo(r*.62,r*.04); ctx.lineTo(0,r*.18); ctx.closePath(); ctx.fill();
+  // Beard
+  ctx.fillStyle = '#5a3008'; ctx.beginPath();
+  ctx.ellipse(0,r*.64,r*.82,r*.6,0,0,Math.PI); ctx.fill();
+  ctx.strokeStyle = '#3d1f04'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+  [[-0.45,0.54,-0.36,1.1],[-0.22,0.62,-0.18,1.18],[0,0.66,0,1.2],[0.22,0.62,0.18,1.18],[0.45,0.54,0.36,1.1]].forEach(([x1,y1,x2,y2])=>{
+    ctx.beginPath(); ctx.moveTo(x1*r,y1*r); ctx.quadraticCurveTo(x1*1.1*r,(y1+y2)/2*r,x2*r,y2*r); ctx.stroke();
   });
-
   // Mustache
   ctx.fillStyle = '#6b3a0a';
-  ctx.beginPath();
-  ctx.ellipse(-5, 5, 7, 3.5, -0.2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(5, 5, 7, 3.5, 0.2, 0, Math.PI * 2);
-  ctx.fill();
-
+  ctx.beginPath(); ctx.ellipse(-r*.22,r*.22,r*.3,r*.16,-0.2,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(r*.22,r*.22,r*.3,r*.16,0.2,0,Math.PI*2); ctx.fill();
   ctx.restore();
 }
 
-function drawHUD() {
-  // Score
-  ctx.save();
-  ctx.textAlign = 'center';
-
-  // Score shadow
-  ctx.fillStyle = 'rgba(0,0,0,0.5)';
-  ctx.font = 'bold 38px "Bebas Neue", sans-serif';
-  ctx.fillText(score, W / 2 + 2, 56);
-
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(score, W / 2, 54);
-
-  // Best
-  if (best > 0) {
-    ctx.font = '500 11px "DM Mono", monospace';
-    ctx.fillStyle = 'rgba(0,229,84,0.5)';
-    ctx.fillText('BEST  ' + best, W / 2, 74);
-  }
-
+function drawCoin(x, y, r, angle) {
+  ctx.save(); ctx.translate(x, y);
+  const sx = Math.cos(angle); ctx.scale(Math.abs(sx)<.04?.04:sx, 1);
+  // Glow
+  const gl = ctx.createRadialGradient(0,0,0,0,0,r+12);
+  gl.addColorStop(0,'rgba(245,197,24,.35)'); gl.addColorStop(1,'rgba(245,197,24,0)');
+  ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(0,0,r+12,0,Math.PI*2); ctx.fill();
+  // Face
+  const cg = ctx.createRadialGradient(-r*.3,-r*.3,r*.1,0,0,r);
+  cg.addColorStop(0,'#fff4b0'); cg.addColorStop(.6,'#f5c518'); cg.addColorStop(1,'#a07800');
+  ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(0,0,r,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#a07800'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = 'rgba(120,80,0,.8)';
+  ctx.font = `bold ${Math.floor(r*.85)}px "Bebas Neue",sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('$', 0, 2);
   ctx.restore();
 }
 
-function drawIdleScreen() {
-  // Dim overlay
-  ctx.fillStyle = 'rgba(6,16,10,0.6)';
-  ctx.fillRect(0, 0, W, H);
+function drawStars(stars, frame) {
+  stars.forEach(s => {
+    ctx.save(); ctx.globalAlpha = (Math.sin(s.a + frame*s.spd)*.5+.5)*.55+.08;
+    ctx.fillStyle = '#00ff5e'; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); ctx.restore();
+  });
+}
 
-  ctx.save();
-  ctx.textAlign = 'center';
+function makeStars(n) {
+  return Array.from({length:n},()=>({x:Math.random()*GW,y:Math.random()*GH,r:Math.random()*1.5+.3,a:Math.random()*Math.PI*2,spd:Math.random()*.01+.005}));
+}
 
-  // Title
-  ctx.font = 'bold 54px "Bebas Neue", sans-serif';
-  ctx.fillStyle = '#00ff5e';
-  ctx.shadowColor = '#00ff5e';
-  ctx.shadowBlur = 20;
-  ctx.fillText('FLAPPY BEARD', W / 2, H / 2 - 60);
-  ctx.shadowBlur = 0;
+function drawIdleOverlay(title, sub, frame) {
+  ctx.fillStyle = 'rgba(6,16,10,.62)'; ctx.fillRect(0,0,GW,GH);
+  ctx.save(); ctx.textAlign = 'center';
+  ctx.font = 'bold 50px "Bebas Neue",sans-serif';
+  ctx.fillStyle = '#00ff5e'; ctx.shadowColor = '#00ff5e'; ctx.shadowBlur = 20;
+  ctx.fillText(title, GW/2, GH/2-64); ctx.shadowBlur = 0;
+  ctx.font = '400 10px "DM Mono",monospace'; ctx.fillStyle = 'rgba(255,255,255,.5)';
+  ctx.fillText(sub, GW/2, GH/2-38);
+  ctx.globalAlpha = Math.sin(frame*.065)*.4+.6;
+  ctx.font = '700 13px "DM Mono",monospace'; ctx.fillStyle = '#00ff5e';
+  ctx.fillText('TAP / SPACE TO START', GW/2, GH/2+22); ctx.restore();
+}
 
-  ctx.font = '400 12px "DM Mono", monospace';
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.fillText('CANDLE TV EDITION', W / 2, H / 2 - 32);
-
-  // Instruction
-  ctx.fillStyle = '#00ff5e';
-  ctx.font = '700 14px "DM Mono", monospace';
-  const alpha = Math.sin(frameCount * 0.06) * 0.4 + 0.6;
-  ctx.globalAlpha = alpha;
-  ctx.fillText('TAP / SPACE TO START', W / 2, H / 2 + 28);
-  ctx.globalAlpha = 1;
-
-  if (best > 0) {
-    ctx.font = '400 11px "DM Mono", monospace';
-    ctx.fillStyle = 'rgba(245,197,24,0.7)';
-    ctx.fillText('BEST  ' + best, W / 2, H / 2 + 58);
-  }
-
+function drawScore(score, x, y) {
+  ctx.save(); ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.font = 'bold 38px "Bebas Neue",sans-serif';
+  ctx.fillText(score, x+2, y+2);
+  ctx.fillStyle = '#fff'; ctx.fillText(score, x, y);
   ctx.restore();
 }
 
-function drawDeadScreen() {
-  if (deathTimer < 10) return;
+// ══════════════════════════════════════════
+// GAME 1 — FLAPPY BEARD
+// ══════════════════════════════════════════
+const FB = {};
 
-  const alpha = Math.min(1, (deathTimer - 10) / 25);
-
-  ctx.save();
-  ctx.globalAlpha = alpha * 0.72;
-  ctx.fillStyle = '#06100a';
-  ctx.fillRect(0, 0, W, H);
-  ctx.globalAlpha = alpha;
-
-  ctx.textAlign = 'center';
-
-  ctx.font = 'bold 52px "Bebas Neue", sans-serif';
-  ctx.fillStyle = '#ff3a3a';
-  ctx.shadowColor = '#ff3a3a';
-  ctx.shadowBlur = 20;
-  ctx.fillText('GAME OVER', W / 2, H / 2 - 60);
-  ctx.shadowBlur = 0;
-
-  ctx.font = 'bold 38px "Bebas Neue", sans-serif';
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(score, W / 2, H / 2 - 14);
-
-  ctx.font = '400 11px "DM Mono", monospace';
-  ctx.fillStyle = 'rgba(245,197,24,0.8)';
-  ctx.fillText('BEST  ' + best, W / 2, H / 2 + 14);
-
-  if (deathTimer > 30) {
-    const pulse = Math.sin((deathTimer - 30) * 0.1) * 0.3 + 0.7;
-    ctx.globalAlpha = alpha * pulse;
-    ctx.font = '700 13px "DM Mono", monospace';
-    ctx.fillStyle = '#00ff5e';
-    ctx.fillText('TAP TO PLAY AGAIN', W / 2, H / 2 + 56);
-    ctx.globalAlpha = alpha;
-  }
-
-  ctx.restore();
+function initFlappy() {
+  parts = [];
+  Object.assign(FB, {
+    st: 'idle', score: 0, frame: 0,
+    bird: { y: GH/2, vy: 0, rot: 0 },
+    pipes: [], pTimer: 0, speed: 1,
+    stars: makeStars(48),
+  });
+  canvas.onclick = () => fbFlap();
+  canvas.ontouchstart = e => { e.preventDefault(); fbFlap(); };
+  document.onkeydown = e => { if (['Space','ArrowUp'].includes(e.code)) { e.preventDefault(); fbFlap(); } };
 }
 
-// ── DRAW ──
-function draw() {
-  drawBackground();
+function fbFlap() {
+  if (FB.st === 'idle') { FB.st = 'playing'; FB.bird.vy = -9.5; }
+  else if (FB.st === 'playing') { FB.bird.vy = -9.5; pSpawn(82, FB.bird.y, '#00ff5e', 5); }
+}
+
+function tickFlappy(dt) {
+  FB.frame++;
+  pUpdate(dt);
+  if (FB.st !== 'playing') { drawFlappy(); return; }
+
+  FB.speed = 1 + Math.floor(FB.score / 10) * 0.22;
+  const sp = FB.speed * dt;
+
+  // Bird physics
+  FB.bird.vy += .46 * dt;
+  FB.bird.y += FB.bird.vy * dt;
+  FB.bird.rot = Math.min(Math.PI*.42, Math.max(-.45, FB.bird.vy * .065));
+
+  if (FB.bird.y - 22 < 0) { FB.bird.y = 22; FB.bird.vy = 2; }
+  if (FB.bird.y + 22 > GH - 26) { fbDie(); return; }
 
   // Pipes
-  pipes.forEach(p => {
-    drawCandle(p.x, p.gapY, p.gapY + PIPE_GAP);
-  });
-
-  // Particles
-  drawParticles();
-
-  // Bird
-  drawBird();
-
-  // HUD
-  if (gameState === 'playing' || gameState === 'dead') {
-    drawHUD();
+  FB.pTimer += dt;
+  if (FB.pTimer >= 88) {
+    FB.pTimer = 0;
+    const gap = 152, gapY = 75 + Math.random()*(GH - gap - 110);
+    FB.pipes.push({ x: GW+62, gapY, gap, scored: false });
   }
 
-  // State overlays
-  if (gameState === 'idle') drawIdleScreen();
-  if (gameState === 'dead') drawDeadScreen();
+  for (let i = FB.pipes.length - 1; i >= 0; i--) {
+    const p = FB.pipes[i];
+    p.x -= 2.9 * sp;
+    if (!p.scored && p.x + 62 < 82 - 22) { p.scored = true; FB.score++; pSpawn(82, FB.bird.y, '#f5c518', 10); }
+    if (82+22 > p.x+4 && 82-22 < p.x+62) {
+      if (FB.bird.y-22 < p.gapY || FB.bird.y+22 > p.gapY+p.gap) { fbDie(); return; }
+    }
+    if (p.x + 62 < -20) FB.pipes.splice(i, 1);
+  }
+  drawFlappy();
 }
 
-// ── LOOP ──
-function loop() {
-  update();
-  draw();
-  requestAnimationFrame(loop);
+function fbDie() {
+  FB.st = 'dead';
+  pSpawn(82, FB.bird.y, '#ff3a3a', 20); pSpawn(82, FB.bird.y, '#f5c518', 10);
+  gameOver(FB.score, 'Flappy Beard', 'flappy');
 }
 
-// Initial bird position for idle animation
-bird.y = H / 2;
-
-loop();
-
-// ── TOAST ──
-let toastT;
-function toast(msg){
-  const el=document.getElementById('toast');
-  el.textContent=msg; el.classList.add('show');
-  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),3000);
+function drawFlappy() {
+  drawBg();
+  drawStars(FB.stars, FB.frame);
+  FB.pipes.forEach(p => drawJeetPipe(p.x, p.gapY, p.gap));
+  // Ground
+  ctx.fillStyle = '#0a2010'; ctx.fillRect(0,GH-26,GW,26);
+  ctx.strokeStyle = 'rgba(0,229,84,.2)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0,GH-26); ctx.lineTo(GW,GH-26); ctx.stroke();
+  pDraw();
+  drawChad(82, FB.bird.y, 22, FB.bird.rot);
+  if (FB.st !== 'idle') drawScore(FB.score, GW/2, 54);
+  if (FB.st === 'idle') drawIdleOverlay('FLAPPY BEARD', 'CANDLE TV EDITION', FB.frame);
 }
+
+function drawJeetPipe(x, gapY, gap) {
+  const w = 62;
+  drawCoinStack(x, 0, w, gapY, true);
+  drawCoinStack(x, gapY+gap, w, GH-(gapY+gap)-26, false);
+  // Labels
+  ctx.save(); ctx.textAlign = 'center';
+  ctx.font = 'bold 10px "DM Mono",monospace'; ctx.fillStyle = '#ff4444';
+  if (gapY > 14) ctx.fillText('JEET', x+w/2, gapY-6);
+  ctx.fillText('JEET', x+w/2, gapY+gap+14);
+  ctx.restore();
+}
+
+function drawCoinStack(x, y, w, h, fromTop) {
+  if (h <= 0) return;
+  const grad = ctx.createLinearGradient(x,0,x+w,0);
+  grad.addColorStop(0,'#1a1200'); grad.addColorStop(.3,'#4a3200');
+  grad.addColorStop(.5,'#f5c518'); grad.addColorStop(.7,'#4a3200'); grad.addColorStop(1,'#1a1200');
+  ctx.fillStyle = grad; ctx.fillRect(x,y,w,h);
+  // Coin rows
+  const cH = 15;
+  for (let cy = y; cy < y+h; cy += cH) {
+    const rh = Math.min(cH-2, y+h-cy);
+    const rg = ctx.createLinearGradient(x,0,x+w,0);
+    rg.addColorStop(0,'#6a4c00'); rg.addColorStop(.25,'#c8a000');
+    rg.addColorStop(.5,'#f5c518'); rg.addColorStop(.75,'#c8a000'); rg.addColorStop(1,'#6a4c00');
+    ctx.fillStyle = rg; ctx.fillRect(x+2,cy,w-4,rh);
+    ctx.fillStyle = 'rgba(255,255,255,.13)'; ctx.fillRect(x+6,cy+1,w-20,3);
+    if ((cy-y)%30 < 15) {
+      ctx.save(); ctx.fillStyle = 'rgba(100,65,0,.7)';
+      ctx.font = 'bold 8px monospace'; ctx.textAlign = 'center';
+      ctx.fillText('$', x+w/2, cy+rh-2); ctx.restore();
+    }
+  }
+  ctx.strokeStyle = 'rgba(245,197,24,.35)'; ctx.lineWidth = 1.5; ctx.strokeRect(x+.75,y+.75,w-1.5,h-1.5);
+}
+
+// ══════════════════════════════════════════
+// GAME 2 — CHAD DODGE
+// ══════════════════════════════════════════
+const CD = {};
+
+function initDodge() {
+  parts = [];
+  Object.assign(CD, {
+    st: 'idle', score: 0, frame: 0,
+    px: GW/2, speed: 5.5, spTimer: 0,
+    obs: [], keys: {}, touchX: null,
+    stars: makeStars(40),
+  });
+  document.onkeydown = e => {
+    CD.keys[e.key] = true;
+    if (['Space','Enter'].includes(e.code) && CD.st === 'idle') CD.st = 'playing';
+  };
+  document.onkeyup = e => { CD.keys[e.key] = false; };
+  canvas.onclick = e => {
+    if (CD.st === 'idle') { CD.st = 'playing'; return; }
+    const r = canvas.getBoundingClientRect();
+    CD.touchX = (e.clientX - r.left) * (GW/r.width);
+  };
+  canvas.ontouchstart = e => {
+    e.preventDefault();
+    if (CD.st === 'idle') { CD.st = 'playing'; return; }
+    const r = canvas.getBoundingClientRect();
+    CD.touchX = (e.touches[0].clientX - r.left) * (GW/r.width);
+  };
+  canvas.ontouchmove = e => {
+    e.preventDefault();
+    const r = canvas.getBoundingClientRect();
+    CD.touchX = (e.touches[0].clientX - r.left) * (GW/r.width);
+  };
+}
+
+function tickDodge(dt) {
+  CD.frame++;
+  pUpdate(dt);
+  if (CD.st !== 'playing') { drawDodge(); return; }
+
+  const gameSpd = 1 + CD.frame / 1100;
+  const moveSpd = CD.speed * gameSpd;
+
+  // Player move
+  if (CD.keys['ArrowLeft'] || CD.keys['a']) CD.px -= moveSpd * dt;
+  if (CD.keys['ArrowRight'] || CD.keys['d']) CD.px += moveSpd * dt;
+  if (CD.touchX !== null) {
+    const dx = CD.touchX - CD.px;
+    CD.px += Math.sign(dx) * Math.min(Math.abs(dx), moveSpd * dt * 1.6);
+  }
+  CD.px = Math.max(24, Math.min(GW-24, CD.px));
+
+  // Spawn
+  CD.spTimer += dt;
+  const interval = Math.max(28, 68 / gameSpd);
+  if (CD.spTimer >= interval) {
+    CD.spTimer = 0;
+    const r = Math.random();
+    const type = r < .14 ? 'green' : r < .42 ? 'redcandle' : 'jeet';
+    const ow = type === 'jeet' ? 58 : 24;
+    CD.obs.push({ x: ow/2 + Math.random()*(GW-ow), y: -34, ow, type, vy: (type==='green' ? 2.4 : 3.4)*gameSpd });
+  }
+
+  // Update obs
+  for (let i = CD.obs.length-1; i >= 0; i--) {
+    const o = CD.obs[i];
+    o.y += o.vy * dt;
+    if (o.y > GH+44) { CD.obs.splice(i,1); continue; }
+    const hit = Math.abs(o.x-CD.px) < (22+o.ow/2)-6 && Math.abs(o.y-(GH-60)) < (22+28)-6;
+    if (hit) {
+      if (o.type === 'green') { CD.score += 5; pSpawn(o.x,o.y,'#00ff5e',14); CD.obs.splice(i,1); }
+      else { cdDie(); return; }
+    }
+  }
+
+  CD.score = Math.floor(CD.frame / 6);
+  drawDodge();
+}
+
+function cdDie() {
+  CD.st = 'dead';
+  pSpawn(CD.px, GH-60, '#ff3a3a', 22);
+  gameOver(CD.score, 'Chad Dodge', 'dodge');
+}
+
+function drawDodge() {
+  drawBg();
+  drawStars(CD.stars, CD.frame);
+
+  // Obstacles
+  CD.obs.forEach(o => {
+    if (o.type === 'jeet') {
+      ctx.save();
+      ctx.fillStyle = 'rgba(255,40,40,.13)'; ctx.strokeStyle = '#ff3a3a'; ctx.lineWidth = 2;
+      rrect(o.x-o.ow/2-4, o.y-18, o.ow+8, 36, 6); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#ff3a3a'; ctx.font = 'bold 17px "DM Mono",monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('JEET', o.x, o.y);
+      ctx.restore();
+    } else {
+      const isGreen = o.type === 'green';
+      const col = isGreen ? '#00c844' : '#cc2200';
+      const glow = isGreen ? 'rgba(0,229,84,.5)' : 'rgba(255,40,0,.5)';
+      ctx.save();
+      // Candle body
+      ctx.fillStyle = col;
+      ctx.fillRect(o.x-10, o.y-18, 20, 36);
+      ctx.strokeStyle = isGreen ? '#00ff5e' : '#ff3a3a'; ctx.lineWidth = 1.5;
+      ctx.strokeRect(o.x-10, o.y-18, 20, 36);
+      // Flame (bottom since falling)
+      const fg = ctx.createRadialGradient(o.x,o.y+18,0,o.x,o.y+18,14);
+      fg.addColorStop(0, isGreen ? '#00ff5e' : '#ff6600'); fg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(o.x,o.y+18,14,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = glow; ctx.shadowColor = glow; ctx.shadowBlur = 14;
+      ctx.beginPath(); ctx.arc(o.x,o.y+18,6,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur = 0;
+      // Label
+      ctx.fillStyle = isGreen ? '#00ff5e' : '#ff3a3a';
+      ctx.font = 'bold 8px "DM Mono",monospace'; ctx.textAlign = 'center';
+      ctx.fillText(isGreen ? '+5' : 'RUG', o.x, o.y-22);
+      ctx.restore();
+    }
+  });
+
+  pDraw();
+  drawChad(CD.px, GH-60, 22, 0);
+
+  // Touch arrows UI
+  ctx.save(); ctx.globalAlpha = .18;
+  ctx.fillStyle = '#00e554'; ctx.font = '16px monospace'; ctx.textAlign = 'left';
+  ctx.fillText('◀', 14, GH-12); ctx.textAlign = 'right'; ctx.fillText('▶', GW-14, GH-12);
+  ctx.restore();
+
+  if (CD.st !== 'idle') drawScore(CD.score, GW/2, 52);
+  if (CD.st === 'idle') drawIdleOverlay('CHAD DODGE', 'DODGE JEETS · CATCH 🕯️ FOR +5', CD.frame);
+}
+
+// ══════════════════════════════════════════
+// GAME 3 — MOON OR RUG
+// ══════════════════════════════════════════
+const MR = {};
+
+function initMoonRug() {
+  parts = [];
+  Object.assign(MR, {
+    st: 'idle', score: 0, streak: 0, frame: 0,
+    coinA: 0, spinning: false,
+    result: null, choice: null,
+    timeLeft: 2000, timeCap: 2000,
+    roundActive: false,
+    flash: null, flashT: 0,
+    stars: makeStars(44),
+  });
+  canvas.onclick = e => {
+    if (MR.st === 'idle') { mrStart(); return; }
+    if (!MR.roundActive || MR.choice) return;
+    const r = canvas.getBoundingClientRect();
+    mrInput((e.clientX-r.left)*(GW/r.width), (e.clientY-r.top)*(GH/r.height));
+  };
+  canvas.ontouchstart = e => {
+    e.preventDefault();
+    if (MR.st === 'idle') { mrStart(); return; }
+    if (!MR.roundActive || MR.choice) return;
+    const r = canvas.getBoundingClientRect();
+    mrInput((e.touches[0].clientX-r.left)*(GW/r.width),(e.touches[0].clientY-r.top)*(GH/r.height));
+  };
+  document.onkeydown = e => {
+    if (MR.st === 'idle' && e.code === 'Space') mrStart();
+    if (!MR.roundActive || MR.choice) return;
+    if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'm') mrPick('moon');
+    if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'r') mrPick('rug');
+  };
+}
+
+function mrStart() { MR.st = 'playing'; mrNextRound(); }
+
+function mrNextRound() {
+  MR.roundActive = false; MR.choice = null; MR.flash = null;
+  MR.result = Math.random() < .5 ? 'moon' : 'rug';
+  MR.spinning = true; MR.coinA = 0;
+  MR.timeCap = Math.max(700, 2000 - MR.score * 55);
+  MR.timeLeft = MR.timeCap;
+  setTimeout(() => { MR.spinning = false; MR.roundActive = true; }, 800);
+}
+
+function mrInput(cx, cy) {
+  const bY = GH - 125, bH = 64, bW = 108;
+  const mX = GW/2 - 120, rX = GW/2 + 12;
+  if (cy < bY || cy > bY+bH) return;
+  if (cx >= mX && cx <= mX+bW) mrPick('moon');
+  else if (cx >= rX && cx <= rX+bW) mrPick('rug');
+}
+
+function mrPick(choice) {
+  if (!MR.roundActive || MR.choice) return;
+  MR.choice = choice; MR.roundActive = false;
+  const correct = choice === MR.result;
+  MR.flash = correct ? 'correct' : 'wrong';
+  MR.flashT = 0;
+  if (correct) {
+    MR.score++; MR.streak++;
+    pSpawn(GW/2, GH/2, '#00ff5e', 16);
+    if (MR.streak >= 3) pSpawn(GW/2, GH/2, '#f5c518', 22);
+    setTimeout(() => mrNextRound(), 900);
+  } else {
+    mrDie();
+  }
+}
+
+function mrDie() {
+  MR.st = 'dead';
+  pSpawn(GW/2, GH/2, '#ff3a3a', 22);
+  gameOver(MR.score, 'Moon or Rug', 'moonrug');
+}
+
+function tickMoonRug(dt) {
+  MR.frame++;
+  pUpdate(dt);
+  MR.coinA += (MR.spinning ? .28 : .05) * dt;
+  if (MR.flash !== null) MR.flashT += dt;
+  if (MR.roundActive && !MR.choice) {
+    MR.timeLeft -= 16.667 * dt;
+    if (MR.timeLeft <= 0) { MR.timeLeft = 0; MR.choice = 'timeout'; MR.flash = 'timeout'; mrDie(); }
+  }
+  drawMoonRug();
+}
+
+function drawMoonRug() {
+  drawBg();
+  drawStars(MR.stars, MR.frame);
+  pDraw();
+
+  if (MR.st === 'idle') {
+    drawCoin(GW/2, GH/2+60, 50, MR.coinA);
+    drawIdleOverlay('MOON OR RUG', 'REFLEX COIN FLIP · M=MOON  R=RUG', MR.frame);
+    return;
+  }
+
+  // Score
+  drawScore(MR.score, GW/2, 52);
+  if (MR.streak >= 3) {
+    ctx.save(); ctx.textAlign = 'center';
+    ctx.fillStyle = '#f5c518'; ctx.font = '700 12px "DM Mono",monospace';
+    ctx.fillText(MR.streak + '🔥 STREAK', GW/2, 72); ctx.restore();
+  }
+
+  // Timer bar
+  const bx = 40, by = 88, bw = GW-80, bh = 10, pct = MR.timeLeft / MR.timeCap;
+  ctx.fillStyle = 'rgba(255,255,255,.07)'; rrect(bx,by,bw,bh,5); ctx.fill();
+  const bc = pct > .5 ? '#00e554' : pct > .25 ? '#f5c518' : '#ff3a3a';
+  ctx.fillStyle = bc; ctx.shadowColor = bc; ctx.shadowBlur = 8;
+  rrect(bx, by, Math.max(bh, bw*pct), bh, 5); ctx.fill(); ctx.shadowBlur = 0;
+
+  // Coin
+  const coinY = GH/2 - 30;
+  drawCoin(GW/2, coinY, 58, MR.coinA);
+
+  // Dim result hint
+  if (!MR.spinning) {
+    const hint = MR.result === 'moon' ? '🌙' : '💀';
+    ctx.save(); ctx.textAlign = 'center'; ctx.globalAlpha = .12;
+    ctx.font = '26px sans-serif'; ctx.fillText(hint, GW/2, coinY+70); ctx.restore();
+  }
+
+  // Flash result
+  if (MR.flash && MR.flashT < 45) {
+    const a = Math.min(1, MR.flashT/6);
+    ctx.save(); ctx.textAlign = 'center'; ctx.globalAlpha = a;
+    const txt = MR.flash === 'correct' ? (MR.streak >= 3 ? '🔥 STREAK BONUS!' : '✅ CORRECT!') : (MR.flash === 'timeout' ? '⏰ TOO SLOW!' : '❌ WRONG!');
+    ctx.fillStyle = MR.flash === 'correct' ? '#00ff5e' : '#ff3a3a';
+    ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 22;
+    ctx.font = 'bold 38px "Bebas Neue",sans-serif';
+    ctx.fillText(txt, GW/2, GH/2+50); ctx.restore();
+  }
+
+  // Buttons
+  const bY2 = GH - 125, bH2 = 64, bW2 = 108;
+  const mX = GW/2 - 120, rX = GW/2 + 12;
+  const isLive = MR.roundActive && !MR.choice;
+
+  // MOON
+  const mChosen = MR.choice === 'moon';
+  ctx.fillStyle = mChosen ? (MR.flash==='correct'?'#00e554':'#ff3a3a') : (isLive ? '#00e554' : 'rgba(0,229,84,.2)');
+  rrect(mX, bY2, bW2, bH2, 12); ctx.fill();
+  ctx.fillStyle = mChosen ? '#fff' : (isLive ? '#06100a' : 'rgba(0,229,84,.55)');
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = 'bold 17px "Bebas Neue",sans-serif'; ctx.fillText('🌙  MOON', mX+bW2/2, bY2+bH2/2);
+
+  // RUG
+  const rChosen = MR.choice === 'rug';
+  ctx.fillStyle = rChosen ? (MR.flash==='correct'?'#00e554':'#ff3a3a') : (isLive ? '#ff3a3a' : 'rgba(255,58,58,.2)');
+  rrect(rX, bY2, bW2, bH2, 12); ctx.fill();
+  ctx.fillStyle = rChosen ? '#fff' : (isLive ? '#fff' : 'rgba(255,58,58,.55)');
+  ctx.font = 'bold 17px "Bebas Neue",sans-serif'; ctx.fillText('💀  RUG', rX+bW2/2, bY2+bH2/2);
+  ctx.textBaseline = 'alphabetic';
+
+  // Key hints
+  ctx.save(); ctx.globalAlpha = .28; ctx.textAlign = 'center';
+  ctx.font = '9px "DM Mono",monospace'; ctx.fillStyle = '#fff';
+  ctx.fillText('← or M', mX+bW2/2, bY2+bH2+14);
+  ctx.fillText('→ or R', rX+bW2/2, bY2+bH2+14);
+  ctx.restore();
+}
+
+// ── BOOT ──
+showMenu();
 </script>
 </body>
 </html>
