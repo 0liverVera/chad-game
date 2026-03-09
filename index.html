@@ -152,7 +152,7 @@ nav{position:sticky;top:0;z-index:200;height:62px;padding:0 32px;display:flex;ju
 .price-badge.dn{color:var(--dn);background:rgba(255,58,58,.1);}
 
 /* THE CHART ITSELF */
-#btc-chart{width:100%;height:180px;display:block;}
+#btc-chart{width:100%;height:280px;display:block;}
 
 .chart-entry-line{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);margin-top:8px;letter-spacing:1px;text-align:center;min-height:16px;}
 
@@ -578,23 +578,25 @@ const LB = [
 // ══════════════════════════════════════════
 let btcPrice = 65000 + Math.random() * 10000;
 let prevBtcPrice = btcPrice;
-let chartData = []; // array of {t, p}
+let chartCandles = []; // array of {t, o, h, l, c}
+let btcWs = null;
 const MAX_CANDLES = 60;
 
 function initChart() {
+  chartCandles = [];
+  let p = btcPrice;
   const now = Date.now();
   for (let i = MAX_CANDLES; i >= 0; i--) {
-    const t = now - i * 5000;
-    const noise = (Math.random() - 0.5) * 200;
-    btcPrice = Math.max(50000, btcPrice + noise);
-    chartData.push({t, p: btcPrice});
+    const t = now - i * 60000;
+    const o = p;
+    const move = (Math.random() - 0.48) * 350;
+    const c = Math.max(50000, o + move);
+    const h = Math.max(o, c) + Math.random() * 180;
+    const l = Math.min(o, c) - Math.random() * 180;
+    chartCandles.push({ t, o, h, l, c });
+    p = c;
   }
-  drawChart();
-}
-
-function updateChart(newPrice) {
-  chartData.push({t: Date.now(), p: newPrice});
-  if (chartData.length > MAX_CANDLES + 1) chartData.shift();
+  btcPrice = chartCandles[chartCandles.length - 1].c;
   drawChart();
 }
 
@@ -602,7 +604,7 @@ function drawChart() {
   const canvas = document.getElementById('btc-chart');
   const dpr = window.devicePixelRatio || 1;
   const W = canvas.parentElement.clientWidth - 40;
-  const H = 180;
+  const H = 280;
   canvas.width = W * dpr;
   canvas.height = H * dpr;
   canvas.style.width = W + 'px';
@@ -611,127 +613,165 @@ function drawChart() {
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, W, H);
 
-  if (chartData.length < 2) return;
+  if (chartCandles.length < 2) return;
 
-  const prices = chartData.map(d => d.p);
-  const minP = Math.min(...prices) * 0.9998;
-  const maxP = Math.max(...prices) * 1.0002;
+  const PAD = { top: 12, bottom: 28, left: 8, right: 66 };
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top - PAD.bottom;
+
+  const highs = chartCandles.map(d => d.h);
+  const lows  = chartCandles.map(d => d.l);
+  const maxP = Math.max(...highs) * 1.0003;
+  const minP = Math.min(...lows)  * 0.9997;
   const range = maxP - minP || 1;
 
-  const toX = i => (i / (chartData.length - 1)) * W;
-  const toY = p => H - 16 - ((p - minP) / range) * (H - 32);
+  const toX = i => PAD.left + (i / (chartCandles.length - 1)) * cW;
+  const toY = p => PAD.top + ((maxP - p) / range) * cH;
 
-  // Grid lines
-  ctx.strokeStyle = 'rgba(0,229,84,0.05)';
+  // Grid lines + price labels
+  ctx.strokeStyle = 'rgba(0,229,84,0.06)';
   ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
-    const y = 8 + (i / 4) * (H - 16);
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    const y = PAD.top + (i / 4) * cH;
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(W - PAD.right, y); ctx.stroke();
+    const lbl = maxP - (i / 4) * range;
+    ctx.fillStyle = 'rgba(61,102,69,0.8)';
+    ctx.font = '400 9px DM Mono, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('$' + lbl.toLocaleString('en-US',{maximumFractionDigits:0}), W - PAD.right + 4, y + 3);
   }
 
-  // Gradient fill
-  const grad = ctx.createLinearGradient(0, 0, 0, H);
-  const lastP = chartData[chartData.length - 1].p;
-  const firstP = chartData[0].p;
-  const isUp = lastP >= firstP;
-  grad.addColorStop(0, isUp ? 'rgba(0,229,84,0.15)' : 'rgba(255,58,58,0.15)');
-  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  // Candle body width
+  const cand = chartCandles.length;
+  const bodyW = Math.max(2, Math.min(10, cW / cand * 0.75));
 
-  ctx.beginPath();
-  ctx.moveTo(toX(0), H);
-  chartData.forEach((d, i) => ctx.lineTo(toX(i), toY(d.p)));
-  ctx.lineTo(toX(chartData.length - 1), H);
-  ctx.closePath();
-  ctx.fillStyle = grad;
-  ctx.fill();
+  // Draw candles
+  chartCandles.forEach((d, i) => {
+    const x = toX(i);
+    const isUp = d.c >= d.o;
+    const col = isUp ? '#00e554' : '#ff3a3a';
+    const colDim = isUp ? 'rgba(0,229,84,0.45)' : 'rgba(255,58,58,0.45)';
 
-  // Line
-  ctx.beginPath();
-  ctx.moveTo(toX(0), toY(chartData[0].p));
-  chartData.forEach((d, i) => { if (i > 0) ctx.lineTo(toX(i), toY(d.p)); });
-  ctx.strokeStyle = isUp ? '#00e554' : '#ff3a3a';
-  ctx.lineWidth = 2;
-  ctx.lineJoin = 'round';
-  ctx.stroke();
+    // Wick
+    ctx.strokeStyle = colDim;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, toY(d.h));
+    ctx.lineTo(x, toY(d.l));
+    ctx.stroke();
+
+    // Body
+    const top = Math.min(toY(d.o), toY(d.c));
+    const bH  = Math.max(1, Math.abs(toY(d.o) - toY(d.c)));
+    ctx.fillStyle = col;
+    ctx.fillRect(x - bodyW / 2, top, bodyW, bH);
+  });
 
   // Entry price line (if voted)
   if (S.voted && S.entryPrice > 0) {
     const ey = toY(S.entryPrice);
-    ctx.beginPath();
     ctx.setLineDash([5, 4]);
-    ctx.moveTo(0, ey); ctx.lineTo(W, ey);
-    ctx.strokeStyle = 'rgba(245,197,24,0.6)';
+    ctx.strokeStyle = 'rgba(245,197,24,0.75)';
     ctx.lineWidth = 1.5;
-    ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(PAD.left, ey); ctx.lineTo(W - PAD.right, ey); ctx.stroke();
     ctx.setLineDash([]);
-
-    // Entry label
-    ctx.fillStyle = 'rgba(245,197,24,0.9)';
-    ctx.font = '500 10px DM Mono, monospace';
-    ctx.fillText('ENTRY $' + S.entryPrice.toFixed(0), 6, ey - 4);
+    ctx.fillStyle = '#f5c518';
+    ctx.font = '600 9px DM Mono, monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('ENTRY $' + S.entryPrice.toLocaleString('en-US',{maximumFractionDigits:0}), PAD.left + 4, ey - 5);
   }
 
-  // Current price dot
-  const last = chartData[chartData.length - 1];
-  const lx = toX(chartData.length - 1);
-  const ly = toY(last.p);
+  // Current price dot with glow
+  const last = chartCandles[chartCandles.length - 1];
+  const lx = toX(chartCandles.length - 1);
+  const ly = toY(last.c);
+  const dotCol = last.c >= last.o ? '#00ff5e' : '#ff5555';
+  ctx.shadowColor = dotCol;
+  ctx.shadowBlur = 10;
   ctx.beginPath();
   ctx.arc(lx, ly, 4, 0, Math.PI * 2);
-  ctx.fillStyle = isUp ? '#00ff5e' : '#ff3a3a';
+  ctx.fillStyle = dotCol;
   ctx.fill();
+  ctx.shadowBlur = 0;
 
-  // Price labels on right
-  ctx.fillStyle = 'rgba(238,245,238,0.5)';
-  ctx.font = '400 9px DM Mono, monospace';
-  ctx.textAlign = 'right';
-  const hi = Math.max(...prices), lo = Math.min(...prices);
-  ctx.fillText('$' + hi.toFixed(0), W - 2, toY(hi) - 2);
-  ctx.fillText('$' + lo.toFixed(0), W - 2, toY(lo) + 10);
+  // Current price label right side
+  ctx.fillStyle = dotCol;
+  ctx.font = '600 10px DM Mono, monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('$' + last.c.toLocaleString('en-US',{maximumFractionDigits:0}), W - PAD.right + 4, ly + 4);
+
+  // Time axis ticks
+  ctx.fillStyle = 'rgba(61,102,69,0.6)';
+  ctx.font = '400 8px DM Mono, monospace';
+  ctx.textAlign = 'center';
+  const tickEvery = Math.max(1, Math.floor(cand / 6));
+  chartCandles.forEach((d, i) => {
+    if (i % tickEvery === 0) {
+      const hh = new Date(d.t).getHours().toString().padStart(2,'0');
+      const mm = new Date(d.t).getMinutes().toString().padStart(2,'0');
+      ctx.fillText(hh+':'+mm, toX(i), H - 4);
+    }
+  });
   ctx.textAlign = 'left';
 }
 
 // ══════════════════════════════════════════
-// PRICE FEED (CoinGecko free API)
+// PRICE FEED — Binance WebSocket (real-time)
 // ══════════════════════════════════════════
-async function fetchBTCPrice() {
-  try {
-    const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', {cache:'no-store'});
-    const data = await res.json();
-    return data?.bitcoin?.usd || null;
-  } catch (e) {
-    return null;
-  }
-}
+function connectBinanceWS() {
+  if (btcWs) { try { btcWs.close(); } catch(e){} btcWs = null; }
 
-async function priceTick() {
-  const live = await fetchBTCPrice();
-  prevBtcPrice = btcPrice;
+  btcWs = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@kline_1m');
 
-  if (live) {
-    btcPrice = live;
-  } else {
-    // Simulate if API fails
-    btcPrice = Math.max(50000, btcPrice + (Math.random() - 0.49) * 150);
-  }
+  btcWs.onopen = () => {
+    console.log('[BTC WS] connected');
+  };
 
-  const chg = ((btcPrice - prevBtcPrice) / prevBtcPrice) * 100;
-  const sign = chg >= 0 ? '+' : '';
+  btcWs.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+    const k = msg.k;
+    if (!k) return;
 
-  document.getElementById('chart-price').textContent = '$' + btcPrice.toLocaleString('en-US', {maximumFractionDigits:0});
-  const badge = document.getElementById('chart-badge');
-  badge.textContent = sign + chg.toFixed(3) + '%';
-  badge.className = 'price-badge ' + (chg >= 0 ? 'up' : 'dn');
+    prevBtcPrice = btcPrice;
+    const newPrice = parseFloat(k.c);
+    btcPrice = newPrice;
 
-  updateChart(btcPrice);
+    const candle = { t: k.t, o: parseFloat(k.o), h: parseFloat(k.h), l: parseFloat(k.l), c: newPrice };
 
-  // Simulate bots adding to pool for realism
-  if (Math.random() < 0.4) {
-    const side = Math.random() < 0.5 ? 'up' : 'dn';
-    const amt = Math.floor(Math.random() * 800) + 100;
-    if (side === 'up') S.poolUp += amt;
-    else S.poolDn += amt;
-    updatePoolDisplay();
-  }
+    // Update current candle or append new one
+    const last = chartCandles[chartCandles.length - 1];
+    if (last && last.t === candle.t) {
+      chartCandles[chartCandles.length - 1] = candle;
+    } else {
+      chartCandles.push(candle);
+      if (chartCandles.length > MAX_CANDLES) chartCandles.shift();
+    }
+
+    // Update price badge (change from candle open)
+    const chg = ((newPrice - parseFloat(k.o)) / parseFloat(k.o)) * 100;
+    const sign = chg >= 0 ? '+' : '';
+    document.getElementById('chart-price').textContent = '$' + newPrice.toLocaleString('en-US', {maximumFractionDigits: 0});
+    const badge = document.getElementById('chart-badge');
+    badge.textContent = sign + chg.toFixed(3) + '%';
+    badge.className = 'price-badge ' + (chg >= 0 ? 'up' : 'dn');
+
+    drawChart();
+
+    // Simulate bot bets trickling in
+    if (Math.random() < 0.12) {
+      const side = Math.random() < 0.5 ? 'up' : 'dn';
+      const amt = Math.floor(Math.random() * 600) + 100;
+      if (side === 'up') S.poolUp += amt; else S.poolDn += amt;
+      updatePoolDisplay();
+    }
+  };
+
+  btcWs.onerror = () => { console.warn('[BTC WS] error — will retry'); };
+
+  btcWs.onclose = () => {
+    console.warn('[BTC WS] closed — reconnecting in 5s');
+    if (S.wallet) setTimeout(connectBinanceWS, 5000);
+  };
 }
 
 // ══════════════════════════════════════════
@@ -949,6 +989,7 @@ async function getChadBalance(pubkey) {
 
 function disconnectWallet() {
   getPhantom()?.disconnect();
+  if (btcWs) { try { btcWs.close(); } catch(e){} btcWs = null; }
   S.wallet = null;
   document.getElementById('connect-box').style.display = 'block';
   document.getElementById('locked-box').style.display = 'none';
@@ -991,9 +1032,8 @@ function initGame(pubkey) {
   startTimer();
   weeklyCD();
 
-  // Price updates every 10s (CoinGecko free tier)
-  priceTick();
-  setInterval(priceTick, 10000);
+  // Price updates via Binance WebSocket (real-time)
+  connectBinanceWS();
 
   // Seed pool with some initial bots for realism
   S.poolUp = 1200; S.poolDn = 1800;
