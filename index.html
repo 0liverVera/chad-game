@@ -25,7 +25,8 @@ html,body{min-height:100vh;background:var(--bg);color:var(--white);font-family:'
 
 /* NAV */
 nav{position:sticky;top:0;z-index:300;height:56px;padding:0 24px;display:flex;justify-content:space-between;align-items:center;background:rgba(6,16,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
-.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--bright);display:flex;align-items:center;gap:8px;}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--bright);display:flex;align-items:center;gap:8px;cursor:pointer;transition:opacity .2s;}
+.nav-logo:hover{opacity:.75;}
 .nav-pip{width:6px;height:6px;border-radius:50%;background:var(--bright);animation:pip 2s ease infinite;box-shadow:0 0 8px var(--green);}
 .nav-right{display:flex;align-items:center;gap:12px;}
 .wallet-pill{background:var(--bg1);border:1px solid var(--border2);border-radius:100px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px;display:none;align-items:center;gap:8px;}
@@ -275,10 +276,6 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
 .f-links a{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);text-decoration:none;letter-spacing:2px;text-transform:uppercase;transition:color .2s;}
 .f-links a:hover{color:var(--bright);}
 
-/* HOME BUTTON */
-#home-btn{position:fixed;top:64px;left:12px;z-index:9998;background:rgba(6,16,10,.95);border:1px solid var(--border2);color:var(--bright);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:5px 12px;border-radius:100px;cursor:pointer;transition:all .2s;display:none;box-shadow:0 2px 12px rgba(0,0,0,.4);}
-#home-btn:hover{background:var(--gdim);box-shadow:0 0 16px var(--glow);}
-#home-btn.visible{display:block;}
 
 /* PROFILE CARD */
 .profile-card{background:var(--bg1);border:1px solid var(--border2);border-radius:var(--r);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
@@ -291,6 +288,32 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
 .profile-stat span{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--bright);display:block;}
 .profile-stat label{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;}
 
+/* HOME SECTIONS */
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,44px);letter-spacing:4px;color:var(--white);text-align:center;margin-bottom:28px;}
+.home-section{max-width:860px;margin:0 auto 64px;padding:0 24px;}
+
+/* HOW TO BUY */
+.buy-steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
+.buy-step{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;text-align:center;position:relative;}
+.buy-step-num{position:absolute;top:12px;right:14px;font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--muted);letter-spacing:1px;}
+.buy-step-icon{font-size:36px;margin-bottom:10px;}
+.buy-step-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--bright);margin-bottom:8px;}
+.buy-step-desc{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);line-height:1.7;}
+
+/* TOKENOMICS */
+.token-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
+.token-item{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.token-icon{font-size:32px;}
+.token-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:2px;text-transform:uppercase;}
+.token-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--bright);letter-spacing:2px;}
+
+/* FAQ */
+.faq-list{display:flex;flex-direction:column;gap:12px;}
+.faq-item{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;cursor:pointer;}
+.faq-item:hover{border-color:var(--border2);}
+.faq-q{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--bright);margin-bottom:8px;}
+.faq-a{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);line-height:1.8;}
+
 /* UTILS */
 .hidden{display:none!important;}
 .shake{animation:shake .4s ease;}
@@ -298,7 +321,6 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
 
 @media(max-width:640px){
   nav{padding:0 14px;}
-  .arcade-topbar{flex-direction:column;text-align:center;}
   .stats-bar{flex-direction:column;}
   .stat-item{border-right:none;border-bottom:1px solid var(--border);}
   .stat-item:last-child{border-bottom:none;}
@@ -314,9 +336,6 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
 </head>
 <body>
 
-<!-- PERSISTENT HOME BUTTON -->
-<button id="home-btn" onclick="goHome()">⌂ $CHAD</button>
-
 <!-- TICKER -->
 <div class="ticker-wrap">
   <div class="ticker-inner">
@@ -327,7 +346,7 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo"><div class="nav-pip"></div>$CHAD ARCADE</div>
+  <div class="nav-logo" onclick="goHome()"><div class="nav-pip"></div>$CHAD</div>
   <div class="nav-right">
     <div class="wallet-pill" id="nav-wallet">
       <span id="nav-addr"></span>
@@ -340,65 +359,16 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
 
 <!-- ══ HERO SCREEN ══ -->
 <div id="screen-hero" class="screen active">
+  <!-- HERO -->
   <div class="hero-wrap">
     <div class="hero-bg"></div>
     <div class="hero-grid"></div>
     <div class="hero-scanlines"></div>
     <div class="hero-particles" id="hero-particles"></div>
     <div class="hero-content">
-      <div class="hero-logo"><span class="dollar">$</span><span class="chad">CHAD</span><br><span class="chad" style="font-size:.55em;letter-spacing:8px;">ARCADE</span></div>
+      <div class="hero-logo"><span class="dollar">$</span><span class="chad">CHAD</span></div>
       <div class="hero-tagline">THE MEMECOIN THAT PLAYS BACK</div>
-      <div class="hero-sub">Connect your Phantom wallet to access the $CHAD Arcade.<br>Hold 100 $CHAD minimum to play.</div>
-
-      <!-- PRIZE BANNER -->
-      <div class="prize-banner">
-        <div class="prize-title">🏆 WEEKLY PRIZES</div>
-        <div class="prize-row">🥇 1st Place — $100 in $CHAD &nbsp;·&nbsp; 🥈 2nd Place — $50 in $CHAD &nbsp;·&nbsp; 🥉 3rd Place — $25 in $CHAD</div>
-        <div class="prize-reset">Top scores reset every Sunday midnight UTC</div>
-      </div>
-
-      <!-- HOW TO WIN -->
-      <div class="how-section">
-        <div class="how-title">HOW TO WIN</div>
-        <div class="how-steps">
-          <div class="how-step">
-            <span class="how-num">1</span>
-            <div class="how-text">Connect Phantom and verify<br>100 $CHAD minimum</div>
-          </div>
-          <div class="how-step">
-            <span class="how-num">2</span>
-            <div class="how-text">Play any arcade game<br>and set your high score</div>
-          </div>
-          <div class="how-step">
-            <span class="how-num">3</span>
-            <div class="how-text">Post your score on X<br>with $CHAD hashtag<br>to be eligible</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- LOCKED PREVIEWS -->
-      <div class="preview-section">
-        <div class="preview-title">3 ARCADE GAMES</div>
-        <div class="preview-grid">
-          <div class="preview-card">
-            <div class="preview-thumb">🧔</div>
-            <div class="preview-lock"><div class="lock-icon">🔒</div><div class="lock-text">CONNECT WALLET<br>TO PLAY</div></div>
-            <div class="preview-body"><div class="preview-gname">Flappy Beard</div><div class="preview-desc">Tap to flap through jeet obstacles</div></div>
-          </div>
-          <div class="preview-card">
-            <div class="preview-thumb">💨</div>
-            <div class="preview-lock"><div class="lock-icon">🔒</div><div class="lock-text">CONNECT WALLET<br>TO PLAY</div></div>
-            <div class="preview-body"><div class="preview-gname">Chad Dodge</div><div class="preview-desc">Dodge falling JEET blocks</div></div>
-          </div>
-          <div class="preview-card">
-            <div class="preview-thumb">🌙</div>
-            <div class="preview-lock"><div class="lock-icon">🔒</div><div class="lock-text">CONNECT WALLET<br>TO PLAY</div></div>
-            <div class="preview-body"><div class="preview-gname">Moon or Rug</div><div class="preview-desc">Reflex coin flip prediction game</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CONNECT -->
+      <div class="hero-sub">Built on Solana. Powered by Candle TV.<br>Hold $CHAD, play arcade games, win weekly prizes.</div>
       <div class="connect-wrap">
         <button class="connect-btn" id="connect-btn" onclick="connectWallet()">
           <span style="font-size:18px;">👻</span> CONNECT PHANTOM WALLET
@@ -408,15 +378,127 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
           Phantom wallet not detected. <a href="https://phantom.app" target="_blank">Download Phantom</a> then refresh this page.
         </div>
       </div>
-
-      <!-- FOOTER -->
-      <footer>
-        <div class="f-logo">$CHAD</div>
-        <p class="f-disc">$CHAD is a memecoin on Solana. Not financial advice. Never invest more than you can afford to lose.</p>
-        <div class="f-links"><a href="#" target="_blank">Twitter</a><a href="#" target="_blank">Telegram</a><a href="https://candle.tv" target="_blank">Candle.tv</a></div>
-      </footer>
     </div>
   </div>
+
+  <!-- PRIZE BANNER -->
+  <div style="max-width:700px;margin:0 auto 56px;padding:0 24px;">
+    <div class="prize-banner">
+      <div class="prize-title">🏆 WEEKLY PRIZES</div>
+      <div class="prize-row">🥇 1st Place — $100 in $CHAD &nbsp;·&nbsp; 🥈 2nd Place — $50 in $CHAD &nbsp;·&nbsp; 🥉 3rd Place — $25 in $CHAD</div>
+      <div class="prize-reset">Top scores reset every Sunday midnight UTC</div>
+    </div>
+  </div>
+
+  <!-- HOW TO PLAY -->
+  <div class="home-section">
+    <div class="section-title">HOW TO PLAY</div>
+    <div class="how-steps">
+      <div class="how-step">
+        <span class="how-num">1</span>
+        <div class="how-text">Connect Phantom wallet and hold a minimum of 100 $CHAD to unlock the arcade</div>
+      </div>
+      <div class="how-step">
+        <span class="how-num">2</span>
+        <div class="how-text">Play any of 3 arcade games and set your highest score this week</div>
+      </div>
+      <div class="how-step">
+        <span class="how-num">3</span>
+        <div class="how-text">Post your score on X with <strong style="color:var(--green);">$CHAD #CHADArcade</strong> to enter the prize draw</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO BUY -->
+  <div class="home-section">
+    <div class="section-title">HOW TO BUY $CHAD</div>
+    <div class="buy-steps-grid">
+      <div class="buy-step">
+        <div class="buy-step-num">01</div>
+        <div class="buy-step-icon">👻</div>
+        <div class="buy-step-title">Get Phantom</div>
+        <div class="buy-step-desc">Download the Phantom wallet at phantom.app — available for browser and mobile.</div>
+      </div>
+      <div class="buy-step">
+        <div class="buy-step-num">02</div>
+        <div class="buy-step-icon">◎</div>
+        <div class="buy-step-title">Buy SOL</div>
+        <div class="buy-step-desc">Purchase Solana (SOL) on any major exchange and send it to your Phantom wallet.</div>
+      </div>
+      <div class="buy-step">
+        <div class="buy-step-num">03</div>
+        <div class="buy-step-icon">📺</div>
+        <div class="buy-step-title">Go to Candle.tv</div>
+        <div class="buy-step-desc">Visit <a href="https://candle.tv" target="_blank" style="color:var(--green);">candle.tv</a> — the platform powering the $CHAD ecosystem.</div>
+      </div>
+      <div class="buy-step">
+        <div class="buy-step-num">04</div>
+        <div class="buy-step-icon">🔄</div>
+        <div class="buy-step-title">Swap for $CHAD</div>
+        <div class="buy-step-desc">Connect your wallet on Candle.tv and swap SOL for $CHAD. Hold 100+ to unlock the arcade.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOKENOMICS -->
+  <div class="home-section">
+    <div class="section-title">TOKENOMICS</div>
+    <div class="token-grid">
+      <div class="token-item">
+        <span class="token-icon">💎</span>
+        <span class="token-lbl">Total Supply</span>
+        <span class="token-val">TBA</span>
+      </div>
+      <div class="token-item">
+        <span class="token-icon">◎</span>
+        <span class="token-lbl">Network</span>
+        <span class="token-val">Solana</span>
+      </div>
+      <div class="token-item">
+        <span class="token-icon">📺</span>
+        <span class="token-lbl">Platform</span>
+        <span class="token-val">Candle TV</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="home-section">
+    <div class="section-title">FAQ</div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">What is $CHAD?</div>
+        <div class="faq-a">$CHAD is a Solana memecoin built on the Candle TV platform. Hold $CHAD to unlock the arcade, compete across 3 games, and win weekly prize pools paid in $CHAD.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How do I play?</div>
+        <div class="faq-a">Connect your Phantom wallet and hold a minimum of 100 $CHAD. You'll get instant access to 3 arcade games: Flappy Beard, Chad Dodge, and Moon or Rug.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">How do I win prizes?</div>
+        <div class="faq-a">Set a high score in any game, then post it on X with $CHAD and #CHADArcade. Top 3 verified scores each week win $100, $50, and $25 in $CHAD — sent directly to your wallet every Sunday.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Is my wallet safe?</div>
+        <div class="faq-a">Yes. We use a read-only wallet connection — we only verify your $CHAD balance to check eligibility. We never request transaction signing and never touch your funds.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">When do prizes get sent?</div>
+        <div class="faq-a">Prizes are verified and distributed every Sunday after the weekly leaderboard resets at midnight UTC. $CHAD is sent directly to your connected wallet address.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="f-logo">$CHAD</div>
+    <p class="f-disc">$CHAD is a memecoin on Solana. Not financial advice. Never invest more than you can afford to lose.</p>
+    <div class="f-links">
+      <a href="#" target="_blank">Twitter / X</a>
+      <a href="#" target="_blank">Telegram</a>
+      <a href="https://candle.tv" target="_blank">Candle.tv</a>
+    </div>
+  </footer>
 </div>
 
 <!-- ══ LOCKED SCREEN (insufficient balance) ══ -->
@@ -438,16 +520,6 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
 
 <!-- ══ ARCADE SCREEN ══ -->
 <div id="screen-arcade" class="screen">
-  <!-- TOP BAR -->
-  <div class="arcade-topbar">
-    <div class="arcade-logo">$CHAD</div>
-    <div class="arcade-title">THE CHAD ARCADE</div>
-    <div class="arcade-wallet">
-      <span class="arcade-addr" id="arcade-addr"></span>
-      <span class="arcade-bal" id="arcade-bal"></span>
-      <button class="disconnect-btn" onclick="disconnectWallet()">DISCONNECT</button>
-    </div>
-  </div>
   <div class="timer-bar">
     <div>
       <span class="timer-label">NEXT RESET</span>
@@ -723,9 +795,6 @@ function onWalletConnected(){
   document.getElementById('nav-bal').textContent = balStr;
   document.getElementById('nav-wallet').classList.add('show');
   document.getElementById('disconnect-btn').classList.remove('hidden');
-  // Arcade bars
-  document.getElementById('arcade-addr').textContent = short;
-  document.getElementById('arcade-bal').textContent = balStr;
   // Load/create profile and scores
   getOrCreateProfile(connectedWallet);
   loadBests();
@@ -843,7 +912,6 @@ function renderProfileCard(){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  document.getElementById('home-btn').classList.toggle('visible', id !== 'screen-hero');
 }
 
 function goHome(){
