@@ -275,6 +275,22 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
 .f-links a{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);text-decoration:none;letter-spacing:2px;text-transform:uppercase;transition:color .2s;}
 .f-links a:hover{color:var(--bright);}
 
+/* HOME BUTTON */
+#home-btn{position:fixed;top:64px;left:12px;z-index:9998;background:rgba(6,16,10,.95);border:1px solid var(--border2);color:var(--bright);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;padding:5px 12px;border-radius:100px;cursor:pointer;transition:all .2s;display:none;box-shadow:0 2px 12px rgba(0,0,0,.4);}
+#home-btn:hover{background:var(--gdim);box-shadow:0 0 16px var(--glow);}
+#home-btn.visible{display:block;}
+
+/* PROFILE CARD */
+.profile-card{background:var(--bg1);border:1px solid var(--border2);border-radius:var(--r);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.profile-avatar{font-size:40px;flex-shrink:0;}
+.profile-meta{flex:1;min-width:160px;}
+.profile-wallet-addr{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);letter-spacing:1px;}
+.profile-joined{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:1px;margin-top:4px;}
+.profile-stats-row{display:flex;gap:20px;flex-wrap:wrap;margin-top:10px;}
+.profile-stat{text-align:center;}
+.profile-stat span{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--bright);display:block;}
+.profile-stat label{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;}
+
 /* UTILS */
 .hidden{display:none!important;}
 .shake{animation:shake .4s ease;}
@@ -297,6 +313,9 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
 </style>
 </head>
 <body>
+
+<!-- PERSISTENT HOME BUTTON -->
+<button id="home-btn" onclick="goHome()">⌂ $CHAD</button>
 
 <!-- TICKER -->
 <div class="ticker-wrap">
@@ -330,13 +349,6 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
       <div class="hero-logo"><span class="dollar">$</span><span class="chad">CHAD</span><br><span class="chad" style="font-size:.55em;letter-spacing:8px;">ARCADE</span></div>
       <div class="hero-tagline">THE MEMECOIN THAT PLAYS BACK</div>
       <div class="hero-sub">Connect your Phantom wallet to access the $CHAD Arcade.<br>Hold 100 $CHAD minimum to play.</div>
-
-      <!-- STATS -->
-      <div class="stats-bar">
-        <div class="stat-item"><span class="stat-num">3,247</span><span class="stat-lbl">Total Players</span></div>
-        <div class="stat-item"><span class="stat-num">89,432</span><span class="stat-lbl">Games Played</span></div>
-        <div class="stat-item"><span class="stat-num">$12,400</span><span class="stat-lbl">$CHAD Distributed</span></div>
-      </div>
 
       <!-- PRIZE BANNER -->
       <div class="prize-banner">
@@ -446,6 +458,21 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
 
   <!-- GAME SELECT -->
   <div class="select-section">
+    <!-- PROFILE CARD -->
+    <div class="profile-card">
+      <div class="profile-avatar">🧔</div>
+      <div class="profile-meta">
+        <div class="profile-wallet-addr" id="profile-wallet-addr"></div>
+        <div class="profile-joined" id="profile-joined"></div>
+        <div class="profile-stats-row">
+          <div class="profile-stat"><span id="profile-games">0</span><label>Games Played</label></div>
+          <div class="profile-stat"><span id="profile-best-flappy">0</span><label>Flappy Best</label></div>
+          <div class="profile-stat"><span id="profile-best-dodge">0</span><label>Dodge Best</label></div>
+          <div class="profile-stat"><span id="profile-best-moonrug">0</span><label>Moon/Rug Best</label></div>
+          <div class="profile-stat"><span id="profile-xposts">0</span><label>X Posts</label></div>
+        </div>
+      </div>
+    </div>
     <div class="select-title">SELECT YOUR GAME</div>
     <div class="games-grid">
       <!-- FLAPPY BEARD -->
@@ -464,7 +491,6 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
           <div class="gcard-diff diff-med">MEDIUM</div>
           <div class="gcard-scores">
             <div class="gscore-item">Your Best<span class="user-score" id="hs-flappy">0</span></div>
-            <div class="gscore-item">Global Best<span id="gb-flappy">847</span></div>
           </div>
           <div class="gcard-foot"><button class="play-btn" onclick="event.stopPropagation();startGame('flappy')">PLAY →</button></div>
         </div>
@@ -485,7 +511,6 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
           <div class="gcard-diff diff-easy">EASY START</div>
           <div class="gcard-scores">
             <div class="gscore-item">Your Best<span class="user-score" id="hs-dodge">0</span></div>
-            <div class="gscore-item">Global Best<span id="gb-dodge">412</span></div>
           </div>
           <div class="gcard-foot"><button class="play-btn" onclick="event.stopPropagation();startGame('dodge')">PLAY →</button></div>
         </div>
@@ -504,7 +529,6 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
           <div class="gcard-diff diff-hard">HARD</div>
           <div class="gcard-scores">
             <div class="gscore-item">Your Best<span class="user-score" id="hs-moonrug">0</span></div>
-            <div class="gscore-item">Global Best<span id="gb-moonrug">31</span></div>
           </div>
           <div class="gcard-foot"><button class="play-btn" onclick="event.stopPropagation();startGame('moonrug')">PLAY →</button></div>
         </div>
@@ -638,23 +662,6 @@ const RPC = 'https://api.mainnet-beta.solana.com';
 const SITE = 'https://chad-game.vercel.app';
 const MIN_CHAD = 100;
 
-const HARDCODED_LB = [
-  {wallet:'Chad...4269',game:'flappy',score:847,date:'2026-03-08',xPosted:true},
-  {wallet:'Moon...1337',game:'moonrug',score:31,date:'2026-03-08',xPosted:true},
-  {wallet:'Wagm...8888',game:'dodge',score:412,date:'2026-03-07',xPosted:true},
-  {wallet:'Diam...0420',game:'flappy',score:623,date:'2026-03-07',xPosted:true},
-  {wallet:'Apes...6969',game:'moonrug',score:28,date:'2026-03-06',xPosted:true},
-  {wallet:'Ngmi...0001',game:'dodge',score:389,date:'2026-03-06',xPosted:true},
-  {wallet:'Giga...7777',game:'flappy',score:591,date:'2026-03-05',xPosted:true},
-  {wallet:'Jeet...0001',game:'dodge',score:201,date:'2026-03-05',xPosted:false},
-  {wallet:'Pump...4200',game:'moonrug',score:19,date:'2026-03-04',xPosted:true},
-  {wallet:'Dege...1111',game:'flappy',score:445,date:'2026-03-04',xPosted:true},
-  {wallet:'Rugg...9999',game:'dodge',score:167,date:'2026-03-03',xPosted:false},
-  {wallet:'Bull...2222',game:'moonrug',score:24,date:'2026-03-03',xPosted:true},
-  {wallet:'Sola...3333',game:'flappy',score:388,date:'2026-03-02',xPosted:true},
-  {wallet:'Hold...5555',game:'dodge',score:298,date:'2026-03-02',xPosted:true},
-  {wallet:'Chad...6666',game:'moonrug',score:15,date:'2026-03-01',xPosted:true},
-];
 
 // ══════════════════════════════════════════
 // STATE
@@ -719,7 +726,8 @@ function onWalletConnected(){
   // Arcade bars
   document.getElementById('arcade-addr').textContent = short;
   document.getElementById('arcade-bal').textContent = balStr;
-  // Load scores
+  // Load/create profile and scores
+  getOrCreateProfile(connectedWallet);
   loadBests();
   if(chadBalance < MIN_CHAD){
     document.getElementById('locked-balance').textContent = Math.floor(chadBalance) + ' $CHAD';
@@ -804,16 +812,50 @@ function startCountdown(){
 }
 
 // ══════════════════════════════════════════
+// WALLET PROFILES
+// ══════════════════════════════════════════
+function getOrCreateProfile(wallet){
+  const key = 'chad_profile_'+wallet;
+  let p = JSON.parse(localStorage.getItem(key)||'null');
+  if(!p){
+    p = {wallet, dateJoined: new Date().toISOString().slice(0,10)};
+    localStorage.setItem(key, JSON.stringify(p));
+  }
+  return p;
+}
+
+function renderProfileCard(){
+  if(!connectedWallet) return;
+  const p = getOrCreateProfile(connectedWallet);
+  document.getElementById('profile-wallet-addr').textContent = truncate(connectedWallet);
+  document.getElementById('profile-joined').textContent = 'Member since '+p.dateJoined;
+  document.getElementById('profile-games').textContent = gamesPlayed;
+  document.getElementById('profile-best-flappy').textContent = bests.flappy||0;
+  document.getElementById('profile-best-dodge').textContent = bests.dodge||0;
+  document.getElementById('profile-best-moonrug').textContent = bests.moonrug||0;
+  const list = JSON.parse(localStorage.getItem(lsScoreListKey())||'[]');
+  document.getElementById('profile-xposts').textContent = list.filter(e=>e.xPosted).length;
+}
+
+// ══════════════════════════════════════════
 // SCREENS
 // ══════════════════════════════════════════
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  document.getElementById('home-btn').classList.toggle('visible', id !== 'screen-hero');
+}
+
+function goHome(){
+  stopLoop(); clearInputs();
+  if(connectedWallet && chadBalance >= MIN_CHAD) showArcade();
+  else if(connectedWallet) showScreen('screen-locked');
+  else showScreen('screen-hero');
 }
 
 function showArcade(){
   stopLoop(); clearInputs();
-  loadBests(); updateStats(); renderLbPreview();
+  loadBests(); updateStats(); renderLbPreview(); renderProfileCard();
   showScreen('screen-arcade');
 }
 
@@ -867,6 +909,7 @@ function markPosted(){
   localStorage.setItem(lsScoreListKey(), JSON.stringify(list));
   btn.textContent = '✓ Posted on X!';
   btn.classList.add('posted');
+  renderProfileCard();
 }
 
 function updateStats(){
@@ -874,10 +917,7 @@ function updateStats(){
   const allBest = Math.max(bests.flappy, bests.dodge, bests.moonrug);
   document.getElementById('stat-games').textContent = gamesPlayed;
   document.getElementById('stat-best').textContent = allBest;
-  // Rank: count how many hardcoded scores are higher
-  const all = getMergedScores('all','week');
-  let rank = all.findIndex(e=>e.isMe);
-  document.getElementById('stat-rank').textContent = rank >= 0 ? '#'+(rank+1) : '#--';
+  document.getElementById('stat-rank').textContent = gamesPlayed > 0 ? '#1' : '#--';
 }
 
 function getUserScores(){
@@ -885,10 +925,7 @@ function getUserScores(){
 }
 
 function getMergedScores(tab, period){
-  let base = [...HARDCODED_LB];
-  let user = getUserScores();
-  // For "week" just show all (we don't have real dates for filtering, keep it simple)
-  let combined = [...base, ...user];
+  let combined = getUserScores();
   if(tab !== 'all') combined = combined.filter(e=>e.game===tab);
   combined.sort((a,b)=>b.score-a.score);
   return combined.slice(0,20);
