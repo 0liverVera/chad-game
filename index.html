@@ -14,28 +14,32 @@
   --red:#ff3a3a;--gold:#f5c518;--r:14px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{min-height:100vh;background:var(--bg);color:var(--white);font-family:'Manrope',sans-serif;overflow-x:hidden;}
+html,body{min-height:100vh;background:#000;color:#fff;font-family:'Manrope',sans-serif;overflow-x:hidden;}
 
 /* TICKER */
-.ticker-wrap{background:#000;border-bottom:1px solid var(--border);height:32px;overflow:hidden;display:flex;align-items:center;}
+.ticker-wrap{background:#000;border-bottom:1px solid rgba(0,229,84,.12);height:32px;overflow:hidden;display:flex;align-items:center;}
 .ticker-inner{display:flex;animation:marquee 28s linear infinite;white-space:nowrap;}
 .ticker-inner span{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--green);padding:0 32px;}
-.ticker-inner .dot{color:var(--muted2);}
+.ticker-inner .dot{color:rgba(0,229,84,.3);}
 @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
 /* NAV */
-nav{position:sticky;top:0;z-index:300;height:56px;padding:0 24px;display:flex;justify-content:space-between;align-items:center;background:rgba(6,16,10,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
-.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--bright);display:flex;align-items:center;gap:8px;cursor:pointer;transition:opacity .2s;}
-.nav-logo:hover{opacity:.75;}
+nav{position:sticky;top:0;z-index:300;height:60px;padding:0 32px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;background:rgba(0,0,0,.96);backdrop-filter:blur(24px);border-bottom:1px solid rgba(0,229,84,.12);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;color:#fff;display:flex;align-items:center;gap:8px;cursor:pointer;transition:color .2s;justify-self:start;}
+.nav-logo:hover{color:var(--bright);}
 .nav-pip{width:6px;height:6px;border-radius:50%;background:var(--bright);animation:pip 2s ease infinite;box-shadow:0 0 8px var(--green);}
-.nav-right{display:flex;align-items:center;gap:12px;}
-.wallet-pill{background:var(--bg1);border:1px solid var(--border2);border-radius:100px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px;display:none;align-items:center;gap:8px;}
+.nav-center{text-align:center;}
+.nav-arcade-link{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.45);text-transform:uppercase;cursor:pointer;background:none;border:none;padding:6px 12px;transition:color .2s;}
+.nav-arcade-link:hover{color:var(--bright);}
+.nav-right{display:flex;align-items:center;gap:10px;justify-self:end;}
+.wallet-pill{background:rgba(0,229,84,.07);border:1px solid rgba(0,229,84,.22);border-radius:100px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px;display:none;align-items:center;gap:8px;}
 .wallet-pill.show{display:flex;}
 .wallet-bal{color:var(--gold);}
 .disconnect-btn{background:transparent;border:1px solid rgba(255,58,58,.3);color:var(--red);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;padding:5px 10px;border-radius:100px;cursor:pointer;transition:all .2s;}
 .disconnect-btn:hover{background:rgba(255,58,58,.1);}
-.nav-candlelink{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:color .2s;}
-.nav-candlelink:hover{color:var(--bright);}
+.nav-connect-btn{background:var(--green);color:#000;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;padding:7px 16px;border-radius:100px;border:none;cursor:pointer;transition:all .2s;display:block;}
+.nav-connect-btn.hidden{display:none!important;}
+.nav-connect-btn:hover{background:var(--bright);}
 
 /* SCREENS */
 .screen{display:none;}
@@ -43,87 +47,111 @@ nav{position:sticky;top:0;z-index:300;height:56px;padding:0 24px;display:flex;ju
 #screen-game.active{display:flex;}
 #screen-gameover.active{display:flex;}
 
-/* ══ HERO ══ */
-.hero-wrap{position:relative;min-height:calc(100vh - 88px);overflow:hidden;}
-.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(0,229,84,.07),transparent 65%);pointer-events:none;}
-.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,84,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,84,.04) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}
-.hero-scanlines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.08) 3px,rgba(0,0,0,.08) 4px);pointer-events:none;z-index:1;}
-.hero-particles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
-.float-sym{position:absolute;font-family:'Bebas Neue',sans-serif;color:var(--green);opacity:0;animation:float-up linear infinite;}
-@keyframes float-up{0%{opacity:0;transform:translateY(0) scale(.8)}10%{opacity:.18}80%{opacity:.1}100%{opacity:0;transform:translateY(-110vh) scale(1.1)}}
+/* ══ PAGE 1 — HERO SCREEN ══ */
+#screen-hero{background:#000;}
 
-.hero-content{position:relative;z-index:2;text-align:center;padding:64px 24px 48px;}
-.hero-logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(72px,16vw,160px);line-height:.85;letter-spacing:6px;animation:pulse-glow 3s ease infinite,glitch 8s ease infinite;}
-.hero-logo .dollar{color:var(--bright);}
-.hero-logo .chad{color:#fff;}
-@keyframes pulse-glow{0%,100%{text-shadow:0 0 40px #00ff5e,0 0 80px rgba(0,255,94,.3)}50%{text-shadow:0 0 20px #00e554,0 0 40px rgba(0,229,84,.15)}}
-@keyframes glitch{0%,88%,100%{transform:none;filter:none}89%{transform:skewX(-3deg) translateX(2px);filter:hue-rotate(90deg)}91%{transform:skewX(2deg) translateX(-2px);filter:hue-rotate(-90deg)}93%{transform:none;color:#ff3a3a}95%{color:var(--bright)}}
+/* SECTION 1 — HERO */
+.s-hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#000;overflow:hidden;}
+.s-hero-particles{position:absolute;inset:0;pointer-events:none;z-index:0;}
+.s-hero-dot{position:absolute;border-radius:50%;animation:float-dot linear infinite;}
+@keyframes float-dot{0%{opacity:0;transform:translateY(0)}10%{opacity:1}85%{opacity:.4}100%{opacity:0;transform:translateY(-100vh)}}
+.s-hero-content{position:relative;z-index:2;text-align:center;padding:0 24px;}
+.s-hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(100px,20vw,220px);line-height:.85;letter-spacing:4px;color:#fff;animation:hero-glow 4s ease-in-out infinite;}
+@keyframes hero-glow{0%,100%{text-shadow:0 0 60px rgba(0,229,84,.15),0 0 120px rgba(0,229,84,.06)}50%{text-shadow:0 0 80px rgba(0,229,84,.25),0 0 160px rgba(0,229,84,.1)}}
+.s-hero-tagline{font-family:'DM Mono',monospace;font-size:clamp(10px,1.8vw,13px);letter-spacing:8px;color:rgba(0,229,84,.65);margin:28px 0 16px;text-transform:uppercase;}
+.s-hero-desc{font-family:'Manrope',sans-serif;font-size:clamp(14px,1.8vw,17px);color:rgba(255,255,255,.38);margin-bottom:52px;letter-spacing:.3px;}
+.s-hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-primary{padding:15px 38px;background:var(--green);color:#000;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;border:none;border-radius:100px;cursor:pointer;transition:all .22s;display:inline-flex;align-items:center;}
+.btn-primary:hover{background:var(--bright);box-shadow:0 0 40px rgba(0,255,94,.3);transform:translateY(-2px);}
+.btn-outline{padding:15px 38px;background:transparent;color:var(--green);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:3px;border:1px solid rgba(0,229,84,.5);border-radius:100px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;transition:all .22s;}
+.btn-outline:hover{border-color:var(--green);background:rgba(0,229,84,.06);transform:translateY(-2px);}
+.s-hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:2;}
+.scroll-arrow{width:18px;height:18px;border-right:1.5px solid rgba(0,229,84,.4);border-bottom:1.5px solid rgba(0,229,84,.4);transform:rotate(45deg);animation:bounce-down 2s ease-in-out infinite;}
+@keyframes bounce-down{0%,100%{transform:rotate(45deg) translateY(-4px);opacity:.35}50%{transform:rotate(45deg) translateY(4px);opacity:.9}}
 @keyframes pip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
 
-.hero-tagline{font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,4vw,32px);letter-spacing:6px;color:var(--green);margin:16px 0 12px;}
-.hero-sub{font-family:'Manrope',sans-serif;font-size:14px;color:var(--muted2);max-width:480px;margin:0 auto 40px;line-height:1.7;}
+/* SECTION 2 — STATEMENT */
+.s-statement{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#000;padding:80px 48px;}
+.s-statement-inner{max-width:880px;text-align:center;line-height:1.15;}
+.s-word{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5.5vw,68px);letter-spacing:3px;color:#fff;opacity:.1;transition:opacity .6s ease,color .6s ease;display:inline-block;margin:0 5px 4px;}
+.s-word.lit{opacity:1;}
+.s-word.accent{color:var(--bright);}
 
-/* STATS BAR */
-.stats-bar{display:flex;justify-content:center;gap:0;flex-wrap:wrap;max-width:700px;margin:0 auto 32px;border:1px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--bg1);}
-.stat-item{flex:1;min-width:160px;padding:18px 24px;text-align:center;border-right:1px solid var(--border);}
-.stat-item:last-child{border-right:none;}
-.stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--bright);letter-spacing:2px;line-height:1;display:block;}
-.stat-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:2px;text-transform:uppercase;margin-top:4px;display:block;}
+/* SECTION 3 — HOW IT WORKS */
+.s-hiw{background:#000;padding:130px 24px;}
+.s-section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:6px;color:var(--green);text-align:center;text-transform:uppercase;margin-bottom:80px;}
+.s-hiw-steps{max-width:920px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);position:relative;}
+.s-hiw-steps::after{content:'';position:absolute;top:34px;left:16%;right:16%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,229,84,.25) 20%,rgba(0,229,84,.25) 80%,transparent);}
+.s-hiw-step{padding:0 36px 0 28px;border-left:1px solid rgba(0,229,84,.15);}
+.s-hiw-step:first-child{border-left:none;padding-left:0;}
+.s-hiw-num{font-family:'Bebas Neue',sans-serif;font-size:72px;color:rgba(0,229,84,.08);line-height:1;margin-bottom:18px;}
+.s-hiw-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#fff;margin-bottom:12px;}
+.s-hiw-desc{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.35);line-height:1.9;}
 
-/* PRIZE BANNER */
-.prize-banner{max-width:700px;margin:0 auto 32px;padding:18px 24px;border-radius:12px;background:linear-gradient(135deg,rgba(245,197,24,.07),rgba(0,229,84,.05));border:2px solid transparent;background-clip:padding-box;position:relative;text-align:center;}
-.prize-banner::before{content:'';position:absolute;inset:-2px;border-radius:14px;background:linear-gradient(135deg,#f5c518,#00e554,#f5c518,#00e554);background-size:400% 400%;animation:shimmer 3s ease infinite;z-index:-1;}
-@keyframes shimmer{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
-.prize-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold);letter-spacing:3px;margin-bottom:8px;}
-.prize-row{font-family:'DM Mono',monospace;font-size:11px;color:var(--white);letter-spacing:1px;line-height:2;}
-.prize-reset{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:1px;margin-top:6px;}
-
-/* HOW TO WIN */
-.how-section{max-width:700px;margin:0 auto 40px;padding:0 24px;}
-.how-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--muted2);text-align:center;margin-bottom:20px;}
-.how-steps{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
-.how-step{flex:1;min-width:180px;background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;}
-.how-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green);display:block;line-height:1;}
-.how-text{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:.5px;line-height:1.7;margin-top:8px;}
-
-/* LOCKED GAME CARDS PREVIEW */
-.preview-section{max-width:860px;margin:0 auto 40px;padding:0 24px;}
-.preview-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;color:var(--muted2);text-align:center;margin-bottom:20px;}
-.preview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
-.preview-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;position:relative;}
-.preview-thumb{height:140px;display:flex;align-items:center;justify-content:center;font-size:64px;background:var(--bg2);filter:blur(4px);user-select:none;}
-.preview-lock{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:28px;background:rgba(6,16,10,.7);}
-.lock-icon{font-size:32px;margin-bottom:6px;}
-.lock-text{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:2px;text-align:center;}
-.preview-body{padding:16px;filter:blur(2px);pointer-events:none;}
-.preview-gname{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--muted2);}
-.preview-desc{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.6;margin-top:4px;}
-
-/* CONNECT BUTTON */
-.connect-wrap{text-align:center;padding:8px 24px 60px;}
-.connect-btn{display:inline-flex;align-items:center;gap:10px;padding:18px 44px;background:var(--green);color:#06100a;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;border:none;border-radius:100px;cursor:pointer;transition:all .2s;box-shadow:0 0 40px rgba(0,229,84,.3);}
-.connect-btn:hover{background:var(--bright);box-shadow:0 0 60px rgba(0,255,94,.5);transform:translateY(-2px);}
-.connect-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-.connect-note{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1px;margin-top:12px;}
+/* SECTION 4 — ARCADE PREVIEW */
+.s-arcade-prev{background:#000;padding:130px 24px;position:relative;}
+.s-arcade-prev::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(0,229,84,.02),transparent 70%);pointer-events:none;}
+.s-arcade-inner{max-width:920px;margin:0 auto;}
+.s-arcade-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px;}
+.s-acard{background:#080808;border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;transition:all .25s;position:relative;cursor:pointer;}
+.s-acard:hover{border-color:rgba(0,229,84,.5);transform:translateY(-7px);box-shadow:0 24px 60px rgba(0,229,84,.1);}
+.s-acard-thumb{height:150px;display:flex;align-items:center;justify-content:center;font-size:64px;background:#040404;position:relative;}
+.s-acard-lock{position:absolute;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;backdrop-filter:blur(2px);}
+.s-acard-lock-icon{font-size:22px;}
+.s-acard-lock-txt{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.35);}
+.s-acard-body{padding:20px 22px;}
+.s-acard-name{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#fff;margin-bottom:6px;}
+.s-acard-desc{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);line-height:1.6;}
+.s-arcade-cta{text-align:center;}
 .no-phantom{font-family:'DM Mono',monospace;font-size:11px;color:var(--red);margin-top:14px;letter-spacing:.5px;}
 .no-phantom a{color:var(--green);}
 
-/* LOCKED SCREEN (insufficient balance) */
-#screen-locked{text-align:center;padding:80px 24px;}
-.locked-icon{font-size:64px;margin-bottom:24px;}
-.locked-title{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--red);letter-spacing:3px;margin-bottom:12px;}
-.locked-msg{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted2);line-height:1.8;margin-bottom:32px;max-width:400px;margin-left:auto;margin-right:auto;}
+/* SECTION 5 — HOW TO BUY */
+.s-buy{background:#000;padding:130px 24px;}
+.s-buy-steps{max-width:900px;margin:0 auto 52px;display:grid;grid-template-columns:repeat(4,1fr);gap:40px;}
+.s-buy-step{}
+.s-buy-num{font-family:'Bebas Neue',sans-serif;font-size:56px;color:var(--green);line-height:1;margin-bottom:12px;opacity:.9;}
+.s-buy-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:#fff;margin-bottom:8px;}
+.s-buy-desc{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.35);line-height:1.8;}
+.s-buy-cta{text-align:center;}
+
+/* SECTION 6 — FAQ */
+.s-faq{background:#000;padding:130px 24px;}
+.faq2-list{max-width:680px;margin:0 auto;}
+.faq2-item{border-bottom:1px solid rgba(0,229,84,.1);}
+.faq2-item:first-child{border-top:1px solid rgba(0,229,84,.1);}
+.faq2-q{display:flex;align-items:center;justify-content:space-between;padding:24px 0;cursor:pointer;gap:16px;user-select:none;}
+.faq2-q-text{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:rgba(255,255,255,.75);transition:color .2s;}
+.faq2-item.open .faq2-q-text{color:#fff;}
+.faq2-icon{font-size:20px;color:rgba(0,229,84,.5);transition:transform .3s ease;flex-shrink:0;font-family:'DM Mono',monospace;line-height:1;font-weight:300;}
+.faq2-item.open .faq2-icon{transform:rotate(45deg);color:var(--green);}
+.faq2-a{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);line-height:1.9;overflow:hidden;max-height:0;transition:max-height .4s ease,padding .4s ease;padding-bottom:0;}
+.faq2-item.open .faq2-a{max-height:160px;padding-bottom:24px;}
+
+/* SECTION 7 — FOOTER */
+.s-footer{background:#000;border-top:1px solid rgba(0,229,84,.08);padding:52px 32px 28px;}
+.s-footer-main{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:24px;padding-bottom:28px;border-bottom:1px solid rgba(255,255,255,.05);}
+.s-footer-logo{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:3px;color:#fff;}
+.s-footer-built{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(255,255,255,.22);text-transform:uppercase;text-align:center;}
+.s-footer-links{display:flex;gap:20px;}
+.s-footer-links a{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.35);text-decoration:none;letter-spacing:2px;text-transform:uppercase;transition:color .2s;}
+.s-footer-links a:hover{color:var(--bright);}
+.s-footer-disc{max-width:960px;margin:18px auto 0;font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,.15);letter-spacing:.5px;text-align:center;}
+
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-d1{transition-delay:.1s;}
+.reveal-d2{transition-delay:.25s;}
+.reveal-d3{transition-delay:.4s;}
+.reveal-d4{transition-delay:.55s;}
+
+/* ══ LOCKED SCREEN ══ */
+#screen-locked{text-align:center;padding:80px 24px;background:var(--bg);}
 .buy-btn{display:inline-block;padding:14px 36px;background:var(--green);color:#06100a;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;border-radius:100px;text-decoration:none;transition:all .2s;cursor:pointer;border:none;}
 .buy-btn:hover{background:var(--bright);box-shadow:0 0 30px var(--glow);}
 
 /* ══ ARCADE ══ */
-.arcade-topbar{background:rgba(6,16,10,.98);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-.arcade-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--bright);letter-spacing:3px;}
-.arcade-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:var(--white);}
-.arcade-wallet{display:flex;align-items:center;gap:10px;}
-.arcade-addr{font-family:'DM Mono',monospace;font-size:10px;color:var(--green);}
-.arcade-bal{font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);}
-
 .timer-bar{background:var(--bg1);border-bottom:1px solid var(--border);padding:10px 24px;text-align:center;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;}
 .timer-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:2px;text-transform:uppercase;}
 .timer-value{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--green);letter-spacing:3px;animation:countdown-pulse 1s ease infinite;}
@@ -140,8 +168,6 @@ nav{position:sticky;top:0;z-index:300;height:56px;padding:0 24px;display:flex;ju
 .gcard:hover::before{opacity:1;}
 .gcard-preview{height:160px;display:flex;align-items:center;justify-content:center;background:var(--bg2);position:relative;overflow:hidden;}
 .gcard-preview::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(0,229,84,.06),transparent 70%);}
-
-/* Game card animations */
 .game-anim-flappy{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
 .anim-bird{font-size:42px;animation:bird-bob .6s ease-in-out infinite;}
 .anim-pipe{position:absolute;width:18px;background:linear-gradient(90deg,#4a3200,#f5c518,#4a3200);border-radius:2px;}
@@ -149,17 +175,13 @@ nav{position:sticky;top:0;z-index:300;height:56px;padding:0 24px;display:flex;ju
 .anim-pipe.bot{bottom:0;height:50px;right:60px;animation:pipe-slide 2s linear infinite;}
 @keyframes bird-bob{0%,100%{transform:translateY(-4px) rotate(-5deg)}50%{transform:translateY(4px) rotate(5deg)}}
 @keyframes pipe-slide{0%{right:-20px}100%{right:120px}}
-
 .game-anim-dodge{position:relative;width:100%;height:100%;overflow:hidden;}
 .anim-chad{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:32px;animation:dodge-sway 1.5s ease-in-out infinite;}
-.anim-block{position:absolute;font-size:16px;font-family:'DM Mono',monospace;font-weight:700;color:var(--red);animation:block-fall 1.5s linear infinite;}
 @keyframes dodge-sway{0%,100%{left:45%}50%{left:55%}}
 @keyframes block-fall{0%{top:-20px;opacity:1}100%{top:120px;opacity:0}}
-
 .game-anim-moon{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
 .anim-coin{font-size:52px;animation:coin-spin 1.2s linear infinite;}
 @keyframes coin-spin{0%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
-
 .gcard-body{padding:20px;}
 .gcard-num{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--green);text-transform:uppercase;margin-bottom:4px;}
 .gcard-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:6px;}
@@ -175,15 +197,11 @@ nav{position:sticky;top:0;z-index:300;height:56px;padding:0 24px;display:flex;ju
 .gcard-foot{display:flex;justify-content:flex-end;}
 .play-btn{padding:10px 24px;background:var(--green);color:#06100a;font-family:'Manrope',sans-serif;font-size:13px;font-weight:800;border:none;border-radius:100px;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
 .play-btn:hover{background:var(--bright);box-shadow:0 4px 20px var(--glow);}
-
-/* YOUR STATS */
 .your-stats{background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:32px;display:flex;gap:32px;flex-wrap:wrap;align-items:center;}
 .your-stats-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;color:var(--muted2);margin-right:16px;}
 .your-stat{text-align:center;}
 .your-stat-val{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--bright);display:block;}
 .your-stat-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:2px;}
-
-/* LEADERBOARD PREVIEW */
 .lb-preview{background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px;}
 .lb-preview-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--white);margin-bottom:16px;}
 .lb-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-size:11px;}
@@ -199,13 +217,24 @@ nav{position:sticky;top:0;z-index:300;height:56px;padding:0 24px;display:flex;ju
 .view-lb-btn{display:block;width:100%;padding:12px;background:transparent;border:1px solid var(--border2);color:var(--green);font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:3px;border-radius:100px;cursor:pointer;transition:all .2s;text-align:center;margin-top:16px;}
 .view-lb-btn:hover{background:var(--gdim);border-color:var(--green);}
 
-/* ══ GAME SCREEN ══ */
-#screen-game{min-height:calc(100vh - 56px);align-items:center;justify-content:center;padding:20px;flex-direction:column;}
+/* PROFILE CARD */
+.profile-card{background:var(--bg1);border:1px solid var(--border2);border-radius:var(--r);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+.profile-avatar{font-size:40px;flex-shrink:0;}
+.profile-meta{flex:1;min-width:160px;}
+.profile-wallet-addr{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);letter-spacing:1px;}
+.profile-joined{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:1px;margin-top:4px;}
+.profile-stats-row{display:flex;gap:20px;flex-wrap:wrap;margin-top:10px;}
+.profile-stat{text-align:center;}
+.profile-stat span{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--bright);display:block;}
+.profile-stat label{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;}
+
+/* GAME SCREEN */
+#screen-game{min-height:calc(100vh - 60px);align-items:center;justify-content:center;padding:20px;flex-direction:column;background:var(--bg);}
 .canvas-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 0 60px rgba(0,229,84,.08);}
 canvas{display:block;}
 
-/* ══ GAME OVER ══ */
-#screen-gameover{min-height:calc(100vh - 56px);align-items:center;justify-content:center;padding:24px;flex-direction:column;gap:0;}
+/* GAME OVER */
+#screen-gameover{min-height:calc(100vh - 60px);align-items:center;justify-content:center;padding:24px;flex-direction:column;gap:0;background:var(--bg);}
 .receipt{background:#f4efe4;color:#111;width:310px;border-radius:3px;padding:26px 22px 32px;font-family:'DM Mono',monospace;position:relative;box-shadow:0 24px 80px rgba(0,0,0,.7);flex-shrink:0;}
 .receipt::before{content:'';position:absolute;top:-9px;left:0;right:0;height:9px;background:repeating-linear-gradient(90deg,transparent 0,transparent 9px,#f4efe4 9px,#f4efe4 18px);clip-path:polygon(0 100%,3% 0,6% 100%,9% 0,12% 100%,15% 0,18% 100%,21% 0,24% 100%,27% 0,30% 100%,33% 0,36% 100%,39% 0,42% 100%,45% 0,48% 100%,51% 0,54% 100%,57% 0,60% 100%,63% 0,66% 100%,69% 0,72% 100%,75% 0,78% 100%,81% 0,84% 100%,87% 0,90% 100%,93% 0,96% 100%,99% 0,100% 100%);}
 .receipt::after{content:'';position:absolute;bottom:-9px;left:0;right:0;height:9px;background:repeating-linear-gradient(90deg,transparent 0,transparent 9px,#f4efe4 9px,#f4efe4 18px);clip-path:polygon(0 0,3% 100%,6% 0,9% 100%,12% 0,15% 100%,18% 0,21% 100%,24% 0,27% 100%,30% 0,33% 100%,36% 0,39% 100%,42% 0,45% 100%,48% 0,51% 100%,54% 0,57% 100%,60% 0,63% 100%,66% 0,69% 100%,72% 0,75% 100%,78% 0,81% 100%,84% 0,87% 100%,90% 0,93% 100%,96% 0,99% 100%,100% 0);}
@@ -232,8 +261,8 @@ canvas{display:block;}
 .menu-btn2{padding:13px 20px;background:transparent;color:var(--muted2);font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;border:1px solid var(--border);border-radius:100px;cursor:pointer;transition:all .2s;}
 .menu-btn2:hover{border-color:var(--green);color:var(--green);}
 
-/* ══ LEADERBOARD PAGE ══ */
-#screen-leaderboard{padding:40px 24px;max-width:900px;margin:0 auto;}
+/* LEADERBOARD PAGE */
+#screen-leaderboard{padding:40px 24px;max-width:900px;margin:0 auto;background:var(--bg);}
 .lb-page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,10vw,96px);letter-spacing:4px;color:var(--white);text-align:center;margin-bottom:8px;text-shadow:0 0 40px rgba(0,255,94,.2);}
 .lb-page-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);text-align:center;letter-spacing:2px;margin-bottom:28px;}
 .lb-timer-wrap{text-align:center;margin-bottom:16px;}
@@ -244,7 +273,6 @@ canvas{display:block;}
 .lb-prize-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:1px;}
 .lb-notice{background:rgba(0,229,84,.04);border:1px solid var(--border);border-radius:10px;padding:16px 20px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);line-height:1.8;margin-bottom:28px;}
 .lb-notice strong{color:var(--green);}
-
 .lb-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;}
 .lb-tab{padding:8px 18px;background:var(--bg1);border:1px solid var(--border);border-radius:100px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted2);cursor:pointer;transition:all .2s;}
 .lb-tab.active{background:var(--green);color:#06100a;border-color:var(--green);font-weight:700;}
@@ -255,12 +283,9 @@ canvas{display:block;}
 .lb-table th{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);}
 .lb-table td{font-family:'DM Mono',monospace;font-size:11px;padding:10px 10px;border-bottom:1px solid rgba(0,229,84,.05);color:var(--white);}
 .lb-table tr.me td{background:rgba(0,229,84,.05);color:var(--green);}
-.lb-table tr.me td .lb-wallet{color:var(--green);}
 .lb-xbadge{display:inline-block;font-size:9px;padding:2px 6px;border-radius:4px;}
 .lb-xbadge.yes{background:rgba(0,229,84,.15);color:var(--green);}
 .lb-xbadge.no{background:rgba(255,58,58,.1);color:var(--muted);}
-
-/* HOW TO WIN PRIZES */
 .htw-section{background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:32px;}
 .htw-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:var(--white);margin-bottom:18px;}
 .htw-step{display:flex;gap:14px;margin-bottom:14px;align-items:flex-start;}
@@ -268,69 +293,27 @@ canvas{display:block;}
 .htw-text{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);line-height:1.8;padding-top:4px;}
 .htw-note{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.7;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
 
-/* FOOTER */
-footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;max-width:960px;margin:0 auto;}
-.f-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--bright);letter-spacing:2px;}
-.f-disc{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);line-height:1.7;max-width:340px;text-align:center;}
-.f-links{display:flex;gap:16px;}
-.f-links a{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);text-decoration:none;letter-spacing:2px;text-transform:uppercase;transition:color .2s;}
-.f-links a:hover{color:var(--bright);}
-
-
-/* PROFILE CARD */
-.profile-card{background:var(--bg1);border:1px solid var(--border2);border-radius:var(--r);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
-.profile-avatar{font-size:40px;flex-shrink:0;}
-.profile-meta{flex:1;min-width:160px;}
-.profile-wallet-addr{font-family:'DM Mono',monospace;font-size:12px;color:var(--green);letter-spacing:1px;}
-.profile-joined{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:1px;margin-top:4px;}
-.profile-stats-row{display:flex;gap:20px;flex-wrap:wrap;margin-top:10px;}
-.profile-stat{text-align:center;}
-.profile-stat span{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--bright);display:block;}
-.profile-stat label{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted2);letter-spacing:1px;text-transform:uppercase;}
-
-/* HOME SECTIONS */
-.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,44px);letter-spacing:4px;color:var(--white);text-align:center;margin-bottom:28px;}
-.home-section{max-width:860px;margin:0 auto 64px;padding:0 24px;}
-
-/* HOW TO BUY */
-.buy-steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
-.buy-step{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;text-align:center;position:relative;}
-.buy-step-num{position:absolute;top:12px;right:14px;font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--muted);letter-spacing:1px;}
-.buy-step-icon{font-size:36px;margin-bottom:10px;}
-.buy-step-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--bright);margin-bottom:8px;}
-.buy-step-desc{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);line-height:1.7;}
-
-/* TOKENOMICS */
-.token-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
-.token-item{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:24px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;}
-.token-icon{font-size:32px;}
-.token-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2);letter-spacing:2px;text-transform:uppercase;}
-.token-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--bright);letter-spacing:2px;}
-
-/* FAQ */
-.faq-list{display:flex;flex-direction:column;gap:12px;}
-.faq-item{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;cursor:pointer;}
-.faq-item:hover{border-color:var(--border2);}
-.faq-q{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--bright);margin-bottom:8px;}
-.faq-a{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);line-height:1.8;}
-
 /* UTILS */
 .hidden{display:none!important;}
 .shake{animation:shake .4s ease;}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
 
-@media(max-width:640px){
-  nav{padding:0 14px;}
-  .stats-bar{flex-direction:column;}
-  .stat-item{border-right:none;border-bottom:1px solid var(--border);}
-  .stat-item:last-child{border-bottom:none;}
-  .how-steps{flex-direction:column;}
-  .games-grid{grid-template-columns:1fr;}
-  .preview-grid{grid-template-columns:1fr;}
-  footer{flex-direction:column;text-align:center;}
-  .f-links{justify-content:center;}
-  .lb-tabs{gap:4px;}
-  .lb-tab{font-size:9px;padding:6px 12px;}
+@media(max-width:768px){
+  nav{grid-template-columns:auto auto;gap:8px;}
+  .nav-center{display:none;}
+  .s-hiw-steps{grid-template-columns:1fr;}
+  .s-hiw-step{border-left:none;border-top:1px solid rgba(0,229,84,.15);padding:28px 0 0;margin-top:0;}
+  .s-hiw-step:first-child{border-top:none;padding-top:0;}
+  .s-hiw-steps::after{display:none;}
+  .s-arcade-grid{grid-template-columns:1fr;}
+  .s-buy-steps{grid-template-columns:repeat(2,1fr);}
+  .s-statement{padding:80px 28px;}
+  .s-footer-main{flex-direction:column;align-items:center;text-align:center;}
+}
+@media(max-width:480px){
+  .s-buy-steps{grid-template-columns:1fr;}
+  nav{padding:0 16px;}
+  .s-hero-btns{flex-direction:column;align-items:center;}
 }
 </style>
 </head>
@@ -347,158 +330,199 @@ footer{border-top:1px solid var(--border);padding:28px 24px;display:flex;justify
 <!-- NAV -->
 <nav>
   <div class="nav-logo" onclick="goHome()"><div class="nav-pip"></div>$CHAD</div>
+  <div class="nav-center">
+    <button class="nav-arcade-link" onclick="handleEnterArcade()">ARCADE</button>
+  </div>
   <div class="nav-right">
     <div class="wallet-pill" id="nav-wallet">
       <span id="nav-addr"></span>
       <span class="wallet-bal" id="nav-bal"></span>
     </div>
+    <button class="nav-connect-btn" id="nav-connect-btn" onclick="connectWallet()">CONNECT WALLET</button>
     <button class="disconnect-btn hidden" id="disconnect-btn" onclick="disconnectWallet()">DISCONNECT</button>
-    <a class="nav-candlelink" href="https://candle.tv" target="_blank">Candle.tv</a>
   </div>
 </nav>
 
 <!-- ══ HERO SCREEN ══ -->
 <div id="screen-hero" class="screen active">
-  <!-- HERO -->
-  <div class="hero-wrap">
-    <div class="hero-bg"></div>
-    <div class="hero-grid"></div>
-    <div class="hero-scanlines"></div>
-    <div class="hero-particles" id="hero-particles"></div>
-    <div class="hero-content">
-      <div class="hero-logo"><span class="dollar">$</span><span class="chad">CHAD</span></div>
-      <div class="hero-tagline">THE MEMECOIN THAT PLAYS BACK</div>
-      <div class="hero-sub">Built on Solana. Powered by Candle TV.<br>Hold $CHAD, play arcade games, win weekly prizes.</div>
-      <div class="connect-wrap">
-        <button class="connect-btn" id="connect-btn" onclick="connectWallet()">
-          <span style="font-size:18px;">👻</span> CONNECT PHANTOM WALLET
-        </button>
-        <div class="connect-note">Read only — we never request transactions or touch your funds</div>
-        <div class="no-phantom hidden" id="no-phantom-msg">
-          Phantom wallet not detected. <a href="https://phantom.app" target="_blank">Download Phantom</a> then refresh this page.
+
+  <!-- SECTION 1: HERO -->
+  <section class="s-hero">
+    <div class="s-hero-particles" id="hero-particles"></div>
+    <div class="s-hero-content">
+      <h1 class="s-hero-title">$CHAD</h1>
+      <p class="s-hero-tagline">JEETS OUT. CHADS IN.</p>
+      <p class="s-hero-desc">The memecoin with an arcade. Built on Solana via Candle TV.</p>
+      <div class="s-hero-btns">
+        <button class="btn-primary" onclick="handleEnterArcade()">ENTER ARCADE</button>
+        <a class="btn-outline" href="https://candle.tv" target="_blank">BUY $CHAD</a>
+      </div>
+    </div>
+    <div class="s-hero-scroll"><div class="scroll-arrow"></div></div>
+  </section>
+
+  <!-- SECTION 2: STATEMENT -->
+  <section class="s-statement">
+    <div class="s-statement-inner" id="statement-words"></div>
+  </section>
+
+  <!-- SECTION 3: HOW IT WORKS -->
+  <section class="s-hiw">
+    <div class="s-section-label reveal">HOW IT WORKS</div>
+    <div class="s-hiw-steps">
+      <div class="s-hiw-step reveal reveal-d1">
+        <div class="s-hiw-num">01</div>
+        <div class="s-hiw-title">Get $CHAD</div>
+        <div class="s-hiw-desc">Buy on Candle TV and hold at least 100 tokens in your Phantom wallet</div>
+      </div>
+      <div class="s-hiw-step reveal reveal-d2">
+        <div class="s-hiw-num">02</div>
+        <div class="s-hiw-title">Play the Arcade</div>
+        <div class="s-hiw-desc">Connect wallet, verify your balance, and get instant access to all 3 games</div>
+      </div>
+      <div class="s-hiw-step reveal reveal-d3">
+        <div class="s-hiw-num">03</div>
+        <div class="s-hiw-title">Win Prizes</div>
+        <div class="s-hiw-desc">Post your high score on X with $CHAD. Top 3 scores win every Sunday.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: ARCADE PREVIEW -->
+  <section class="s-arcade-prev">
+    <div class="s-arcade-inner">
+      <div class="s-section-label reveal">THE ARCADE</div>
+      <div class="s-arcade-grid">
+        <div class="s-acard reveal reveal-d1" onclick="handleEnterArcade()">
+          <div class="s-acard-thumb">🧔
+            <div class="s-acard-lock" id="lock-flappy"><div class="s-acard-lock-icon">🔒</div><div class="s-acard-lock-txt">CONNECT TO PLAY</div></div>
+          </div>
+          <div class="s-acard-body">
+            <div class="s-acard-name">Flappy Beard</div>
+            <div class="s-acard-desc">Tap to flap through jeet candle obstacles</div>
+          </div>
+        </div>
+        <div class="s-acard reveal reveal-d2" onclick="handleEnterArcade()">
+          <div class="s-acard-thumb">💨
+            <div class="s-acard-lock" id="lock-dodge"><div class="s-acard-lock-icon">🔒</div><div class="s-acard-lock-txt">CONNECT TO PLAY</div></div>
+          </div>
+          <div class="s-acard-body">
+            <div class="s-acard-name">Chad Dodge</div>
+            <div class="s-acard-desc">Dodge falling JEET blocks and catch green candles</div>
+          </div>
+        </div>
+        <div class="s-acard reveal reveal-d3" onclick="handleEnterArcade()">
+          <div class="s-acard-thumb">🌙
+            <div class="s-acard-lock" id="lock-moonrug"><div class="s-acard-lock-icon">🔒</div><div class="s-acard-lock-txt">CONNECT TO PLAY</div></div>
+          </div>
+          <div class="s-acard-body">
+            <div class="s-acard-name">Moon or Rug</div>
+            <div class="s-acard-desc">Reflex coin flip — pick before the timer runs out</div>
+          </div>
+        </div>
+      </div>
+      <div class="s-arcade-cta reveal">
+        <button class="btn-primary" id="arcade-cta-btn" onclick="handleEnterArcade()">CONNECT WALLET TO PLAY</button>
+        <div class="no-phantom hidden" id="no-phantom-msg" style="margin-top:14px;">
+          Phantom not detected. <a href="https://phantom.app" target="_blank" style="color:var(--green);">Download Phantom</a> then refresh.
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- PRIZE BANNER -->
-  <div style="max-width:700px;margin:0 auto 56px;padding:0 24px;">
-    <div class="prize-banner">
-      <div class="prize-title">🏆 WEEKLY PRIZES</div>
-      <div class="prize-row">🥇 1st Place — $100 in $CHAD &nbsp;·&nbsp; 🥈 2nd Place — $50 in $CHAD &nbsp;·&nbsp; 🥉 3rd Place — $25 in $CHAD</div>
-      <div class="prize-reset">Top scores reset every Sunday midnight UTC</div>
-    </div>
-  </div>
-
-  <!-- HOW TO PLAY -->
-  <div class="home-section">
-    <div class="section-title">HOW TO PLAY</div>
-    <div class="how-steps">
-      <div class="how-step">
-        <span class="how-num">1</span>
-        <div class="how-text">Connect Phantom wallet and hold a minimum of 100 $CHAD to unlock the arcade</div>
+  <!-- SECTION 5: HOW TO BUY -->
+  <section class="s-buy">
+    <div class="s-section-label reveal">GET $CHAD</div>
+    <div class="s-buy-steps">
+      <div class="s-buy-step reveal reveal-d1">
+        <div class="s-buy-num">1</div>
+        <div class="s-buy-title">Download Phantom</div>
+        <div class="s-buy-desc">Get the Phantom wallet at phantom.app — available for browser and mobile.</div>
       </div>
-      <div class="how-step">
-        <span class="how-num">2</span>
-        <div class="how-text">Play any of 3 arcade games and set your highest score this week</div>
+      <div class="s-buy-step reveal reveal-d2">
+        <div class="s-buy-num">2</div>
+        <div class="s-buy-title">Buy SOL</div>
+        <div class="s-buy-desc">Purchase Solana (SOL) on any major exchange and send it to your Phantom.</div>
       </div>
-      <div class="how-step">
-        <span class="how-num">3</span>
-        <div class="how-text">Post your score on X with <strong style="color:var(--green);">$CHAD #CHADArcade</strong> to enter the prize draw</div>
+      <div class="s-buy-step reveal reveal-d3">
+        <div class="s-buy-num">3</div>
+        <div class="s-buy-title">Go to Candle.tv</div>
+        <div class="s-buy-desc">Visit candle.tv — the platform powering the $CHAD ecosystem.</div>
       </div>
-    </div>
-  </div>
-
-  <!-- HOW TO BUY -->
-  <div class="home-section">
-    <div class="section-title">HOW TO BUY $CHAD</div>
-    <div class="buy-steps-grid">
-      <div class="buy-step">
-        <div class="buy-step-num">01</div>
-        <div class="buy-step-icon">👻</div>
-        <div class="buy-step-title">Get Phantom</div>
-        <div class="buy-step-desc">Download the Phantom wallet at phantom.app — available for browser and mobile.</div>
-      </div>
-      <div class="buy-step">
-        <div class="buy-step-num">02</div>
-        <div class="buy-step-icon">◎</div>
-        <div class="buy-step-title">Buy SOL</div>
-        <div class="buy-step-desc">Purchase Solana (SOL) on any major exchange and send it to your Phantom wallet.</div>
-      </div>
-      <div class="buy-step">
-        <div class="buy-step-num">03</div>
-        <div class="buy-step-icon">📺</div>
-        <div class="buy-step-title">Go to Candle.tv</div>
-        <div class="buy-step-desc">Visit <a href="https://candle.tv" target="_blank" style="color:var(--green);">candle.tv</a> — the platform powering the $CHAD ecosystem.</div>
-      </div>
-      <div class="buy-step">
-        <div class="buy-step-num">04</div>
-        <div class="buy-step-icon">🔄</div>
-        <div class="buy-step-title">Swap for $CHAD</div>
-        <div class="buy-step-desc">Connect your wallet on Candle.tv and swap SOL for $CHAD. Hold 100+ to unlock the arcade.</div>
+      <div class="s-buy-step reveal reveal-d4">
+        <div class="s-buy-num">4</div>
+        <div class="s-buy-title">Swap for $CHAD</div>
+        <div class="s-buy-desc">Connect your wallet and swap SOL for $CHAD. Hold 100+ to unlock the arcade.</div>
       </div>
     </div>
-  </div>
+    <div class="s-buy-cta reveal">
+      <a class="btn-primary" href="https://candle.tv" target="_blank" style="text-decoration:none;">BUY ON CANDLE.TV →</a>
+    </div>
+  </section>
 
-  <!-- TOKENOMICS -->
-  <div class="home-section">
-    <div class="section-title">TOKENOMICS</div>
-    <div class="token-grid">
-      <div class="token-item">
-        <span class="token-icon">💎</span>
-        <span class="token-lbl">Total Supply</span>
-        <span class="token-val">TBA</span>
+  <!-- SECTION 6: FAQ -->
+  <section class="s-faq">
+    <div class="s-section-label reveal">FAQ</div>
+    <div class="faq2-list reveal">
+      <div class="faq2-item">
+        <div class="faq2-q" onclick="toggleFaq(this)">
+          <span class="faq2-q-text">What is $CHAD?</span>
+          <span class="faq2-icon">+</span>
+        </div>
+        <div class="faq2-a">$CHAD is a Solana memecoin built on Candle TV. Hold $CHAD to access the arcade, play 3 games, and compete for weekly prize pools paid directly in $CHAD.</div>
       </div>
-      <div class="token-item">
-        <span class="token-icon">◎</span>
-        <span class="token-lbl">Network</span>
-        <span class="token-val">Solana</span>
+      <div class="faq2-item">
+        <div class="faq2-q" onclick="toggleFaq(this)">
+          <span class="faq2-q-text">How do I play the arcade?</span>
+          <span class="faq2-icon">+</span>
+        </div>
+        <div class="faq2-a">Connect your Phantom wallet and hold at least 100 $CHAD. You'll get instant access to all 3 arcade games: Flappy Beard, Chad Dodge, and Moon or Rug.</div>
       </div>
-      <div class="token-item">
-        <span class="token-icon">📺</span>
-        <span class="token-lbl">Platform</span>
-        <span class="token-val">Candle TV</span>
+      <div class="faq2-item">
+        <div class="faq2-q" onclick="toggleFaq(this)">
+          <span class="faq2-q-text">How do I win weekly prizes?</span>
+          <span class="faq2-icon">+</span>
+        </div>
+        <div class="faq2-a">Set a high score in any game, post it on X with $CHAD and #CHADArcade. Top 3 verified scores each week win $100, $50, and $25 in $CHAD sent to your wallet every Sunday.</div>
+      </div>
+      <div class="faq2-item">
+        <div class="faq2-q" onclick="toggleFaq(this)">
+          <span class="faq2-q-text">Is my wallet safe?</span>
+          <span class="faq2-icon">+</span>
+        </div>
+        <div class="faq2-a">Yes. Read-only connection only — we verify your $CHAD balance to check eligibility. We never request transaction signing and never access your funds.</div>
+      </div>
+      <div class="faq2-item">
+        <div class="faq2-q" onclick="toggleFaq(this)">
+          <span class="faq2-q-text">When are prizes sent?</span>
+          <span class="faq2-icon">+</span>
+        </div>
+        <div class="faq2-a">Every Sunday after the leaderboard resets at midnight UTC. $CHAD is sent directly to your connected Phantom wallet.</div>
+      </div>
+      <div class="faq2-item">
+        <div class="faq2-q" onclick="toggleFaq(this)">
+          <span class="faq2-q-text">What is the minimum to play?</span>
+          <span class="faq2-icon">+</span>
+        </div>
+        <div class="faq2-a">100 $CHAD minimum in your Phantom wallet. Your balance is checked each time you connect — no $CHAD, no arcade access.</div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- FAQ -->
-  <div class="home-section">
-    <div class="section-title">FAQ</div>
-    <div class="faq-list">
-      <div class="faq-item">
-        <div class="faq-q">What is $CHAD?</div>
-        <div class="faq-a">$CHAD is a Solana memecoin built on the Candle TV platform. Hold $CHAD to unlock the arcade, compete across 3 games, and win weekly prize pools paid in $CHAD.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">How do I play?</div>
-        <div class="faq-a">Connect your Phantom wallet and hold a minimum of 100 $CHAD. You'll get instant access to 3 arcade games: Flappy Beard, Chad Dodge, and Moon or Rug.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">How do I win prizes?</div>
-        <div class="faq-a">Set a high score in any game, then post it on X with $CHAD and #CHADArcade. Top 3 verified scores each week win $100, $50, and $25 in $CHAD — sent directly to your wallet every Sunday.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">Is my wallet safe?</div>
-        <div class="faq-a">Yes. We use a read-only wallet connection — we only verify your $CHAD balance to check eligibility. We never request transaction signing and never touch your funds.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">When do prizes get sent?</div>
-        <div class="faq-a">Prizes are verified and distributed every Sunday after the weekly leaderboard resets at midnight UTC. $CHAD is sent directly to your connected wallet address.</div>
+  <!-- SECTION 7: FOOTER -->
+  <footer class="s-footer">
+    <div class="s-footer-main">
+      <div class="s-footer-logo">$CHAD</div>
+      <div class="s-footer-built">BUILT ON SOLANA · POWERED BY CANDLE TV</div>
+      <div class="s-footer-links">
+        <a href="#" target="_blank">X / TWITTER</a>
+        <a href="#" target="_blank">TELEGRAM</a>
+        <a href="https://candle.tv" target="_blank">CANDLE.TV</a>
       </div>
     </div>
-  </div>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="f-logo">$CHAD</div>
-    <p class="f-disc">$CHAD is a memecoin on Solana. Not financial advice. Never invest more than you can afford to lose.</p>
-    <div class="f-links">
-      <a href="#" target="_blank">Twitter / X</a>
-      <a href="#" target="_blank">Telegram</a>
-      <a href="https://candle.tv" target="_blank">Candle.tv</a>
-    </div>
+    <div class="s-footer-disc">Not financial advice. $CHAD is a memecoin. Never invest more than you can afford to lose.</div>
   </footer>
+
 </div>
 
 <!-- ══ LOCKED SCREEN (insufficient balance) ══ -->
@@ -756,21 +780,19 @@ let lastGameName = '';
 function truncate(addr){return addr.slice(0,4)+'...'+addr.slice(-4);}
 
 async function connectWallet(){
-  const btn = document.getElementById('connect-btn');
   if(!window.solana || !window.solana.isPhantom){
-    document.getElementById('no-phantom-msg').classList.remove('hidden');
+    document.querySelectorAll('#no-phantom-msg').forEach(el=>el.classList.remove('hidden'));
     return;
   }
-  btn.disabled = true;
-  btn.textContent = 'CONNECTING...';
+  const btn = document.getElementById('nav-connect-btn');
+  if(btn){btn.disabled=true;btn.textContent='CONNECTING...';}
   try{
     const resp = await window.solana.connect();
     connectedWallet = resp.publicKey.toString();
     chadBalance = await getChadBalance(connectedWallet);
     onWalletConnected();
   }catch(e){
-    btn.disabled = false;
-    btn.innerHTML = '<span style="font-size:18px;">👻</span> CONNECT PHANTOM WALLET';
+    if(btn){btn.disabled=false;btn.textContent='CONNECT WALLET';}
   }
 }
 
@@ -795,6 +817,16 @@ function onWalletConnected(){
   document.getElementById('nav-bal').textContent = balStr;
   document.getElementById('nav-wallet').classList.add('show');
   document.getElementById('disconnect-btn').classList.remove('hidden');
+  const ncb = document.getElementById('nav-connect-btn');
+  if(ncb){ncb.classList.add('hidden');}
+  // Unlock arcade preview cards
+  ['flappy','dodge','moonrug'].forEach(g=>{
+    const lock = document.getElementById('lock-'+g);
+    if(lock) lock.style.display='none';
+  });
+  // Update arcade CTA
+  const ctaBtn = document.getElementById('arcade-cta-btn');
+  if(ctaBtn) ctaBtn.textContent = 'ENTER ARCADE →';
   // Load/create profile and scores
   getOrCreateProfile(connectedWallet);
   loadBests();
@@ -812,7 +844,16 @@ function disconnectWallet(){
   chadBalance = 0;
   document.getElementById('nav-wallet').classList.remove('show');
   document.getElementById('disconnect-btn').classList.add('hidden');
-  showScreen('screen-hero');
+  const ncb = document.getElementById('nav-connect-btn');
+  if(ncb){ncb.classList.remove('hidden');ncb.disabled=false;ncb.textContent='CONNECT WALLET';}
+  // Re-lock arcade preview cards
+  ['flappy','dodge','moonrug'].forEach(g=>{
+    const lock = document.getElementById('lock-'+g);
+    if(lock) lock.style.display='';
+  });
+  const ctaBtn = document.getElementById('arcade-cta-btn');
+  if(ctaBtn) ctaBtn.textContent = 'CONNECT WALLET TO PLAY';
+  goHome();
   stopLoop();
 }
 
@@ -820,6 +861,8 @@ function disconnectWallet(){
 window.addEventListener('load', async()=>{
   spawnParticles();
   startCountdown();
+  initStatementReveal();
+  initScrollReveal();
   if(window.solana && window.solana.isPhantom && window.solana.isConnected){
     try{
       const resp = await window.solana.connect({onlyIfTrusted:true});
@@ -835,15 +878,13 @@ window.addEventListener('load', async()=>{
 // ══════════════════════════════════════════
 function spawnParticles(){
   const container = document.getElementById('hero-particles');
-  const syms = ['$','$CHAD','$','CHAD','$'];
-  for(let i=0;i<22;i++){
+  if(!container) return;
+  for(let i=0;i<70;i++){
     const el = document.createElement('div');
-    el.className = 'float-sym';
-    el.textContent = syms[Math.floor(Math.random()*syms.length)];
-    el.style.left = Math.random()*100 + 'vw';
-    el.style.fontSize = (10+Math.random()*20) + 'px';
-    el.style.animationDuration = (8+Math.random()*14)+'s';
-    el.style.animationDelay = (Math.random()*12)+'s';
+    el.className = 's-hero-dot';
+    const size = Math.random()*2.5+0.8;
+    const opacity = (Math.random()*0.35+0.08).toFixed(2);
+    el.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;background:rgba(0,229,84,${opacity});animation-duration:${9+Math.random()*14}s;animation-delay:${Math.random()*14}s;`;
     container.appendChild(el);
   }
 }
@@ -916,9 +957,8 @@ function showScreen(id){
 
 function goHome(){
   stopLoop(); clearInputs();
-  if(connectedWallet && chadBalance >= MIN_CHAD) showArcade();
-  else if(connectedWallet) showScreen('screen-locked');
-  else showScreen('screen-hero');
+  showScreen('screen-hero');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function showArcade(){
@@ -1506,6 +1546,56 @@ function drawMoonRug(){
   ctx.textBaseline='alphabetic';
   ctx.save();ctx.globalAlpha=.28;ctx.textAlign='center';ctx.font='9px "DM Mono",monospace';ctx.fillStyle='#fff';
   ctx.fillText('← or M',mX+bW2/2,bY2+bH2+14);ctx.fillText('→ or R',rX+bW2/2,bY2+bH2+14);ctx.restore();
+}
+
+// ══════════════════════════════════════════
+// HOMEPAGE INTERACTIONS
+// ══════════════════════════════════════════
+function handleEnterArcade(){
+  if(connectedWallet && chadBalance >= MIN_CHAD){
+    showArcade();
+  } else if(connectedWallet){
+    showScreen('screen-locked');
+  } else {
+    connectWallet();
+  }
+}
+
+function toggleFaq(qEl){
+  const item = qEl.closest('.faq2-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq2-item.open').forEach(el=>el.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+
+function initStatementReveal(){
+  const text = "Most memecoins give you nothing. $CHAD gives you an arcade, weekly prizes, and a reason to hold.";
+  const accentWords = ['$CHAD','arcade,','prizes,'];
+  const container = document.getElementById('statement-words');
+  if(!container) return;
+  container.innerHTML = text.split(' ').map(w=>{
+    const cls = accentWords.includes(w) ? 's-word accent' : 's-word';
+    return `<span class="${cls}">${w}</span>`;
+  }).join(' ');
+
+  const words = container.querySelectorAll('.s-word');
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        words.forEach((w,i)=>setTimeout(()=>w.classList.add('lit'),i*80));
+        obs.disconnect();
+      }
+    });
+  },{threshold:0.3});
+  obs.observe(container);
+}
+
+function initScrollReveal(){
+  const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+  },{threshold:0.12});
+  els.forEach(el=>obs.observe(el));
 }
 
 // ── BOOT ──
