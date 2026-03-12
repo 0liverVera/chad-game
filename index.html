@@ -767,6 +767,7 @@ const MIN_CHAD = 100;
 // ══════════════════════════════════════════
 let connectedWallet = null;
 let chadBalance = 0;
+let userInitiatedConnect = false;
 let currentGame = null;
 let raf = null;
 let bests = {flappy:0, dodge:0, moonrug:0};
@@ -790,11 +791,16 @@ async function connectWallet(){
   const btn = document.getElementById('nav-connect-btn');
   if(btn){btn.disabled=true;btn.textContent='CONNECTING...';}
   try{
-    const resp = await window.solana.connect({onlyIfTrusted: false});
+    // Force a clean disconnect first so Phantom treats this as a fresh connection
+    try{ await window.solana.disconnect(); }catch(e){}
+    userInitiatedConnect = true;
+    const resp = await window.solana.connect();
+    userInitiatedConnect = false;
     connectedWallet = resp.publicKey.toString();
     chadBalance = await getChadBalance(connectedWallet);
     onWalletConnected();
   }catch(e){
+    userInitiatedConnect = false;
     if(btn){btn.disabled=false;btn.textContent='CONNECT WALLET';}
   }
 }
@@ -842,6 +848,7 @@ function onWalletConnected(){
 }
 
 async function disconnectWallet(){
+  userInitiatedConnect = false;
   try{
     if(window.solana && window.solana.disconnect) await window.solana.disconnect();
   }catch(e){}
@@ -867,6 +874,21 @@ window.addEventListener('load', ()=>{
   startCountdown();
   initStatementReveal();
   initScrollReveal();
+
+  if(window.solana){
+    // Block any auto-connect events Phantom fires on page load
+    if(window.solana.on){
+      window.solana.on('connect', async()=>{
+        if(!userInitiatedConnect){
+          try{ await window.solana.disconnect(); }catch(e){}
+        }
+      });
+    }
+    // If Phantom is already connected on load, kill it
+    if(window.solana.isConnected){
+      window.solana.disconnect().catch(()=>{});
+    }
+  }
 });
 
 // ══════════════════════════════════════════
