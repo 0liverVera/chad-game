@@ -790,7 +790,7 @@ async function connectWallet(){
   const btn = document.getElementById('nav-connect-btn');
   if(btn){btn.disabled=true;btn.textContent='CONNECTING...';}
   try{
-    const resp = await window.solana.connect();
+    const resp = await window.solana.connect({onlyIfTrusted: false});
     sessionStorage.removeItem('chad_disconnected');
     connectedWallet = resp.publicKey.toString();
     chadBalance = await getChadBalance(connectedWallet);
@@ -842,9 +842,11 @@ function onWalletConnected(){
   }
 }
 
-function disconnectWallet(){
+async function disconnectWallet(){
   sessionStorage.setItem('chad_disconnected','1');
-  if(window.solana && window.solana.disconnect) window.solana.disconnect();
+  try{
+    if(window.solana && window.solana.disconnect) await window.solana.disconnect();
+  }catch(e){}
   connectedWallet = null;
   chadBalance = 0;
   document.getElementById('nav-wallet').classList.remove('show');
