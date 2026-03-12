@@ -791,6 +791,7 @@ async function connectWallet(){
   if(btn){btn.disabled=true;btn.textContent='CONNECTING...';}
   try{
     const resp = await window.solana.connect();
+    sessionStorage.removeItem('chad_disconnected');
     connectedWallet = resp.publicKey.toString();
     chadBalance = await getChadBalance(connectedWallet);
     onWalletConnected();
@@ -842,6 +843,7 @@ function onWalletConnected(){
 }
 
 function disconnectWallet(){
+  sessionStorage.setItem('chad_disconnected','1');
   if(window.solana && window.solana.disconnect) window.solana.disconnect();
   connectedWallet = null;
   chadBalance = 0;
@@ -860,13 +862,13 @@ function disconnectWallet(){
   stopLoop();
 }
 
-// Auto-reconnect
+// Auto-reconnect (skipped if user manually disconnected this session)
 window.addEventListener('load', async()=>{
   spawnParticles();
   startCountdown();
   initStatementReveal();
   initScrollReveal();
-  if(window.solana && window.solana.isPhantom && window.solana.isConnected){
+  if(!sessionStorage.getItem('chad_disconnected') && window.solana && window.solana.isPhantom && window.solana.isConnected){
     try{
       const resp = await window.solana.connect({onlyIfTrusted:true});
       connectedWallet = resp.publicKey.toString();
