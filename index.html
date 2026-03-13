@@ -33,14 +33,30 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:60px;padding:0 32px;d
 .nav-arcade-link{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.45);text-transform:uppercase;cursor:pointer;background:none;border:none;padding:6px 12px;transition:color .2s;}
 .nav-arcade-link:hover{color:var(--bright);}
 .nav-right{display:flex;align-items:center;gap:10px;justify-self:end;}
-.wallet-pill{background:rgba(0,229,84,.07);border:1px solid rgba(0,229,84,.22);border-radius:100px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px;display:none;align-items:center;gap:8px;}
-.wallet-pill.show{display:flex;}
-.wallet-bal{color:var(--gold);}
+.nav-user-pill{background:rgba(0,229,84,.07);border:1px solid rgba(0,229,84,.22);border-radius:100px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px;display:none;align-items:center;}
+.nav-user-pill.show{display:flex;}
 .disconnect-btn{background:transparent;border:1px solid rgba(255,58,58,.3);color:var(--red);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;padding:5px 10px;border-radius:100px;cursor:pointer;transition:all .2s;}
 .disconnect-btn:hover{background:rgba(255,58,58,.1);}
 .nav-connect-btn{background:var(--green);color:#000;font-family:'DM Mono',monospace;font-size:10px;font-weight:700;letter-spacing:2px;padding:7px 16px;border-radius:100px;border:none;cursor:pointer;transition:all .2s;display:block;}
 .nav-connect-btn.hidden{display:none!important;}
 .nav-connect-btn:hover{background:var(--bright);}
+
+/* LOGIN MODAL */
+.login-overlay{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);}
+.login-overlay.open{display:flex;}
+.login-box{background:#0a0a0a;border:1px solid rgba(0,229,84,.2);border-radius:16px;padding:40px 36px;max-width:420px;width:90%;}
+.login-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:3px;color:#fff;margin-bottom:6px;}
+.login-sub{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.35);line-height:1.8;margin-bottom:28px;}
+.login-field{margin-bottom:18px;}
+.login-field label{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--green);margin-bottom:8px;}
+.login-field input{width:100%;background:#000;border:1px solid rgba(0,229,84,.2);border-radius:8px;padding:12px 14px;color:#fff;font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .2s;}
+.login-field input:focus{border-color:rgba(0,229,84,.6);}
+.login-field input::placeholder{color:rgba(255,255,255,.2);}
+.login-error{font-family:'DM Mono',monospace;font-size:10px;color:#ff3a3a;margin-bottom:16px;padding:10px 14px;background:rgba(255,58,58,.08);border-radius:6px;border:1px solid rgba(255,58,58,.2);}
+.login-submit-btn{width:100%;padding:15px;background:var(--green);color:#000;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:3px;border:none;border-radius:100px;cursor:pointer;transition:all .2s;margin-bottom:12px;}
+.login-submit-btn:hover{background:var(--bright);box-shadow:0 0 30px rgba(0,255,94,.2);}
+.login-cancel{display:block;width:100%;background:none;border:none;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);cursor:pointer;letter-spacing:1px;transition:color .2s;text-align:center;padding:4px;}
+.login-cancel:hover{color:rgba(255,255,255,.6);}
 
 /* SCREENS */
 .screen{display:none;}
@@ -149,10 +165,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:60px;padding:0 32px;d
 .reveal-d3{transition-delay:.4s;}
 .reveal-d4{transition-delay:.55s;}
 
-/* ══ LOCKED SCREEN ══ */
-#screen-locked{text-align:center;padding:80px 24px;background:var(--bg);}
-.buy-btn{display:inline-block;padding:14px 36px;background:var(--green);color:#06100a;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;border-radius:100px;text-decoration:none;transition:all .2s;cursor:pointer;border:none;}
-.buy-btn:hover{background:var(--bright);box-shadow:0 0 30px var(--glow);}
 
 /* ══ ARCADE ══ */
 .timer-bar{background:var(--bg1);border-bottom:1px solid var(--border);padding:10px 24px;text-align:center;display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;}
@@ -337,12 +349,11 @@ canvas{display:block;}
     <button class="nav-arcade-link" onclick="handleEnterArcade()">ARCADE</button>
   </div>
   <div class="nav-right">
-    <div class="wallet-pill" id="nav-wallet">
-      <span id="nav-addr"></span>
-      <span class="wallet-bal" id="nav-bal"></span>
+    <div class="nav-user-pill" id="nav-user-pill">
+      <span id="nav-user-name"></span>
     </div>
-    <button class="nav-connect-btn" id="nav-connect-btn" onclick="connectWallet()">CONNECT WALLET</button>
-    <button class="disconnect-btn hidden" id="disconnect-btn" onclick="disconnectWallet()">DISCONNECT</button>
+    <button class="nav-connect-btn" id="nav-connect-btn" onclick="showLoginModal()">CONNECT</button>
+    <button class="disconnect-btn hidden" id="nav-logout-btn" onclick="logoutUser()">LOGOUT</button>
   </div>
 </nav>
 
@@ -398,7 +409,6 @@ canvas{display:block;}
       <div class="s-arcade-grid">
         <div class="s-acard reveal reveal-d1" onclick="handleEnterArcade()">
           <div class="s-acard-thumb">🧔
-            <div class="s-acard-lock" id="lock-flappy"><div class="s-acard-lock-icon">🔒</div><div class="s-acard-lock-txt">CONNECT TO PLAY</div></div>
           </div>
           <div class="s-acard-body">
             <div class="s-acard-name">Flappy Beard</div>
@@ -407,7 +417,6 @@ canvas{display:block;}
         </div>
         <div class="s-acard reveal reveal-d2" onclick="handleEnterArcade()">
           <div class="s-acard-thumb">💨
-            <div class="s-acard-lock" id="lock-dodge"><div class="s-acard-lock-icon">🔒</div><div class="s-acard-lock-txt">CONNECT TO PLAY</div></div>
           </div>
           <div class="s-acard-body">
             <div class="s-acard-name">Chad Dodge</div>
@@ -416,7 +425,6 @@ canvas{display:block;}
         </div>
         <div class="s-acard reveal reveal-d3" onclick="handleEnterArcade()">
           <div class="s-acard-thumb">🌙
-            <div class="s-acard-lock" id="lock-moonrug"><div class="s-acard-lock-icon">🔒</div><div class="s-acard-lock-txt">CONNECT TO PLAY</div></div>
           </div>
           <div class="s-acard-body">
             <div class="s-acard-name">Moon or Rug</div>
@@ -425,10 +433,7 @@ canvas{display:block;}
         </div>
       </div>
       <div class="s-arcade-cta reveal">
-        <button class="btn-primary" id="arcade-cta-btn" onclick="handleEnterArcade()">CONNECT WALLET TO PLAY</button>
-        <div class="no-phantom hidden" id="no-phantom-msg" style="margin-top:14px;">
-          Phantom not detected. <a href="https://phantom.app" target="_blank" style="color:var(--green);">Download Phantom</a> then refresh.
-        </div>
+        <button class="btn-primary" id="arcade-cta-btn" onclick="handleEnterArcade()">ENTER USERNAME &amp; WALLET TO PLAY</button>
       </div>
     </div>
   </section>
@@ -528,22 +533,6 @@ canvas{display:block;}
 
 </div>
 
-<!-- ══ LOCKED SCREEN (insufficient balance) ══ -->
-<div id="screen-locked" class="screen">
-  <div style="text-align:center;padding:80px 24px;">
-    <div style="font-size:64px;margin-bottom:24px;">🔒</div>
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--red);letter-spacing:3px;margin-bottom:12px;">INSUFFICIENT $CHAD</div>
-    <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted2);line-height:1.9;margin-bottom:32px;max-width:400px;margin-left:auto;margin-right:auto;">
-      You need at least <strong style="color:var(--green);">100 $CHAD</strong> to access the arcade.<br>
-      Your balance: <strong id="locked-balance" style="color:var(--red);">0 $CHAD</strong><br><br>
-      Buy $CHAD on Candle TV to unlock.
-    </div>
-    <a class="buy-btn" href="https://candle.tv" target="_blank">BUY $CHAD ON CANDLE.TV</a>
-    <div style="margin-top:20px;">
-      <button class="menu-btn2" onclick="disconnectWallet()">← Disconnect</button>
-    </div>
-  </div>
-</div>
 
 <!-- ══ ARCADE SCREEN ══ -->
 <div id="screen-arcade" class="screen">
@@ -752,22 +741,37 @@ canvas{display:block;}
   </footer>
 </div>
 
+<!-- ══ LOGIN MODAL ══ -->
+<div id="login-modal" class="login-overlay">
+  <div class="login-box">
+    <div class="login-title">ENTER THE ARCADE</div>
+    <div class="login-sub">Enter your details to play and compete for weekly prizes</div>
+    <div class="login-field">
+      <label>X USERNAME</label>
+      <input type="text" id="input-x" placeholder="@yourhandle" autocomplete="off">
+    </div>
+    <div class="login-field">
+      <label>SOLANA WALLET ADDRESS</label>
+      <input type="text" id="input-wallet" placeholder="Your Solana wallet address" autocomplete="off">
+    </div>
+    <div class="login-error hidden" id="login-error"></div>
+    <button class="login-submit-btn" onclick="submitLogin()">ENTER ARCADE →</button>
+    <button class="login-cancel" onclick="closeLoginModal()">CANCEL</button>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════
-const CHAD_MINT = 'REPLACE_WITH_CHAD_CONTRACT_ADDRESS';
-const RPC = 'https://api.mainnet-beta.solana.com';
 const SITE = 'https://chad-game.vercel.app';
-const MIN_CHAD = 100;
 
 
 // ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
-let connectedWallet = null;
-let chadBalance = 0;
-let userInitiatedConnect = false;
+let xUsername = null;
+let walletAddress = null;
 let currentGame = null;
 let raf = null;
 let bests = {flappy:0, dodge:0, moonrug:0};
@@ -779,94 +783,89 @@ let lastGameScore = 0;
 let lastGameName = '';
 
 // ══════════════════════════════════════════
-// WALLET
+// AUTH / LOGIN
 // ══════════════════════════════════════════
 function truncate(addr){return addr.slice(0,4)+'...'+addr.slice(-4);}
 
-async function connectWallet(){
-  if(!window.solana || !window.solana.isPhantom){
-    document.querySelectorAll('#no-phantom-msg').forEach(el=>el.classList.remove('hidden'));
+function showLoginModal(){
+  document.getElementById('login-modal').classList.add('open');
+}
+
+function closeLoginModal(){
+  document.getElementById('login-modal').classList.remove('open');
+}
+
+function submitLogin(){
+  const x = document.getElementById('input-x').value.trim();
+  const w = document.getElementById('input-wallet').value.trim();
+  const err = document.getElementById('login-error');
+
+  if(!x){
+    err.textContent = 'X username is required.';
+    err.classList.remove('hidden');
     return;
   }
-  const btn = document.getElementById('nav-connect-btn');
-  if(btn){btn.disabled=true;btn.textContent='CONNECTING...';}
-  try{
-    // Force a clean disconnect first so Phantom treats this as a fresh connection
-    try{ await window.solana.disconnect(); }catch(e){}
-    userInitiatedConnect = true;
-    const resp = await window.solana.connect();
-    userInitiatedConnect = false;
-    connectedWallet = resp.publicKey.toString();
-    chadBalance = await getChadBalance(connectedWallet);
-    onWalletConnected();
-  }catch(e){
-    userInitiatedConnect = false;
-    if(btn){btn.disabled=false;btn.textContent='CONNECT WALLET';}
+  if(!w){
+    err.textContent = 'Solana wallet address is required.';
+    err.classList.remove('hidden');
+    return;
   }
+  // Basic Solana address validation (32-44 chars, base58)
+  if(w.length < 32 || w.length > 44){
+    err.textContent = 'Please enter a valid Solana wallet address.';
+    err.classList.remove('hidden');
+    return;
+  }
+
+  err.classList.add('hidden');
+  xUsername = x.startsWith('@') ? x : '@' + x;
+  walletAddress = w;
+
+  closeLoginModal();
+  onUserLoggedIn();
 }
 
-async function getChadBalance(wallet){
-  if(CHAD_MINT === 'REPLACE_WITH_CHAD_CONTRACT_ADDRESS') return 500;
-  try{
-    const body = {jsonrpc:'2.0',id:1,method:'getTokenAccountsByOwner',params:[wallet,{mint:CHAD_MINT},{encoding:'jsonParsed'}]};
-    const res = await fetch(RPC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const data = await res.json();
-    const accounts = data.result && data.result.value;
-    if(!accounts || !accounts.length) return 0;
-    const amt = accounts[0].account.data.parsed.info.tokenAmount.uiAmount;
-    return amt || 0;
-  }catch(e){ return 0; }
-}
+function onUserLoggedIn(){
+  // Update nav
+  const pill = document.getElementById('nav-user-pill');
+  const pillName = document.getElementById('nav-user-name');
+  if(pill) pill.classList.add('show');
+  if(pillName) pillName.textContent = xUsername;
 
-function onWalletConnected(){
-  const short = truncate(connectedWallet);
-  const balStr = Math.floor(chadBalance).toLocaleString() + ' $CHAD';
-  // Nav
-  document.getElementById('nav-addr').textContent = short;
-  document.getElementById('nav-bal').textContent = balStr;
-  document.getElementById('nav-wallet').classList.add('show');
-  document.getElementById('disconnect-btn').classList.remove('hidden');
-  const ncb = document.getElementById('nav-connect-btn');
-  if(ncb){ncb.classList.add('hidden');}
-  // Unlock arcade preview cards
-  ['flappy','dodge','moonrug'].forEach(g=>{
-    const lock = document.getElementById('lock-'+g);
-    if(lock) lock.style.display='none';
-  });
+  document.getElementById('nav-connect-btn').classList.add('hidden');
+  document.getElementById('nav-logout-btn').classList.remove('hidden');
+
   // Update arcade CTA
   const ctaBtn = document.getElementById('arcade-cta-btn');
   if(ctaBtn) ctaBtn.textContent = 'ENTER ARCADE →';
-  // Load/create profile and scores
-  getOrCreateProfile(connectedWallet);
+
+  getOrCreateProfile(walletAddress);
   loadBests();
-  if(chadBalance < MIN_CHAD){
-    document.getElementById('locked-balance').textContent = Math.floor(chadBalance) + ' $CHAD';
-    showScreen('screen-locked');
-  } else {
-    showArcade();
-  }
+  showArcade();
 }
 
-async function disconnectWallet(){
-  userInitiatedConnect = false;
-  try{
-    if(window.solana && window.solana.disconnect) await window.solana.disconnect();
-  }catch(e){}
-  connectedWallet = null;
-  chadBalance = 0;
-  document.getElementById('nav-wallet').classList.remove('show');
-  document.getElementById('disconnect-btn').classList.add('hidden');
-  const ncb = document.getElementById('nav-connect-btn');
-  if(ncb){ncb.classList.remove('hidden');ncb.disabled=false;ncb.textContent='CONNECT WALLET';}
-  // Re-lock arcade preview cards
-  ['flappy','dodge','moonrug'].forEach(g=>{
-    const lock = document.getElementById('lock-'+g);
-    if(lock) lock.style.display='';
-  });
+function logoutUser(){
+  xUsername = null;
+  walletAddress = null;
+
+  const pill = document.getElementById('nav-user-pill');
+  if(pill) pill.classList.remove('show');
+  document.getElementById('nav-connect-btn').classList.remove('hidden');
+  document.getElementById('nav-logout-btn').classList.add('hidden');
+
   const ctaBtn = document.getElementById('arcade-cta-btn');
-  if(ctaBtn) ctaBtn.textContent = 'CONNECT WALLET TO PLAY';
+  if(ctaBtn) ctaBtn.textContent = 'ENTER USERNAME & WALLET TO PLAY';
+
   goHome();
   stopLoop();
+}
+
+function handleEnterArcade(){
+  if(xUsername && walletAddress){
+    showArcade();
+  } else {
+    showLoginModal();
+  }
 }
 
 window.addEventListener('load', ()=>{
@@ -874,21 +873,6 @@ window.addEventListener('load', ()=>{
   startCountdown();
   initStatementReveal();
   initScrollReveal();
-
-  if(window.solana){
-    // Block any auto-connect events Phantom fires on page load
-    if(window.solana.on){
-      window.solana.on('connect', async()=>{
-        if(!userInitiatedConnect){
-          try{ await window.solana.disconnect(); }catch(e){}
-        }
-      });
-    }
-    // If Phantom is already connected on load, kill it
-    if(window.solana.isConnected){
-      window.solana.disconnect().catch(()=>{});
-    }
-  }
 });
 
 // ══════════════════════════════════════════
@@ -953,10 +937,10 @@ function getOrCreateProfile(wallet){
 }
 
 function renderProfileCard(){
-  if(!connectedWallet) return;
-  const p = getOrCreateProfile(connectedWallet);
-  document.getElementById('profile-wallet-addr').textContent = truncate(connectedWallet);
-  document.getElementById('profile-joined').textContent = 'Member since '+p.dateJoined;
+  if(!walletAddress) return;
+  const p = getOrCreateProfile(walletAddress);
+  document.getElementById('profile-wallet-addr').textContent = xUsername || truncate(walletAddress);
+  document.getElementById('profile-joined').textContent = truncate(walletAddress);
   document.getElementById('profile-games').textContent = gamesPlayed;
   document.getElementById('profile-best-flappy').textContent = bests.flappy||0;
   document.getElementById('profile-best-dodge').textContent = bests.dodge||0;
@@ -993,10 +977,10 @@ function showLeaderboard(){
 // ══════════════════════════════════════════
 // SCORES / LOCAL STORAGE
 // ══════════════════════════════════════════
-function lsKey(game){ return 'chad_b_'+game+(connectedWallet?'_'+connectedWallet:''); }
-function lsGamesKey(){ return 'chad_games'+(connectedWallet?'_'+connectedWallet:''); }
-function lsScoreListKey(){ return 'chad_scores'+(connectedWallet?'_'+connectedWallet:''); }
-function lsPostedKey(game,score){ return 'chad_posted_'+game+'_'+score+(connectedWallet?'_'+connectedWallet:''); }
+function lsKey(game){ return 'chad_b_'+game+(walletAddress?'_'+walletAddress:''); }
+function lsGamesKey(){ return 'chad_games'+(walletAddress?'_'+walletAddress:''); }
+function lsScoreListKey(){ return 'chad_scores'+(walletAddress?'_'+walletAddress:''); }
+function lsPostedKey(game,score){ return 'chad_posted_'+game+'_'+score+(walletAddress?'_'+walletAddress:''); }
 
 function loadBests(){
   for(const g of ['flappy','dodge','moonrug']){
@@ -1019,7 +1003,7 @@ function saveBest(game,score){
   localStorage.setItem(lsGamesKey(), gamesPlayed);
   // Save to score list
   const list = JSON.parse(localStorage.getItem(lsScoreListKey())||'[]');
-  list.push({game, score, date: new Date().toISOString().slice(0,10), wallet: connectedWallet ? truncate(connectedWallet) : 'You', xPosted:false});
+  list.push({game, score, date: new Date().toISOString().slice(0,10), wallet: xUsername || (walletAddress ? truncate(walletAddress) : 'You'), xPosted:false});
   localStorage.setItem(lsScoreListKey(), JSON.stringify(list));
 }
 
@@ -1156,7 +1140,7 @@ function gameOver(score, gameName, gameKey){
   document.getElementById('go-score').textContent = score;
   document.getElementById('go-best').textContent = bests[gameKey];
   document.getElementById('go-date').textContent = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}).toUpperCase();
-  document.getElementById('go-wallet').textContent = connectedWallet ? truncate(connectedWallet) : 'ANON';
+  document.getElementById('go-wallet').textContent = xUsername || (walletAddress ? truncate(walletAddress) : 'ANON');
   const tweets = {
     flappy:`Just scored ${score} on Flappy Beard in the $CHAD Arcade 🎮 Can you beat me? Play at ${SITE} $CHAD #CHADArcade`,
     dodge:`I survived ${score} seconds in Chad Dodge on the $CHAD Arcade 🛡️ Try to beat me. Play at ${SITE} $CHAD #CHADArcade`,
@@ -1569,16 +1553,6 @@ function drawMoonRug(){
 // ══════════════════════════════════════════
 // HOMEPAGE INTERACTIONS
 // ══════════════════════════════════════════
-function handleEnterArcade(){
-  if(connectedWallet && chadBalance >= MIN_CHAD){
-    showArcade();
-  } else if(connectedWallet){
-    showScreen('screen-locked');
-  } else {
-    connectWallet();
-  }
-}
-
 function toggleFaq(qEl){
   const item = qEl.closest('.faq2-item');
   const isOpen = item.classList.contains('open');
