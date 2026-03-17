@@ -601,7 +601,7 @@ canvas{display:block;}
   </div>
 
   <table class="lb-table" id="lb-table">
-    <thead><tr><th>#</th><th></th><th>Wallet</th><th>Score</th><th>Game</th><th>Date</th><th>X Post</th></tr></thead>
+    <thead><tr><th>#</th><th></th><th>X Handle</th><th>Wallet</th><th>Score</th><th>Date</th></tr></thead>
     <tbody id="lb-tbody"></tbody>
   </table>
 
@@ -640,6 +640,48 @@ canvas{display:block;}
 // CONSTANTS
 // ══════════════════════════════════════════
 const SITE = 'https://chad-game.vercel.app';
+
+// ── FIREBASE REALTIME DATABASE ──
+// Setup (one time, ~2 min):
+//   1. Go to console.firebase.google.com → Add project
+//   2. Build → Realtime Database → Create database → Start in TEST mode
+//   3. Copy your database URL (looks like https://YOUR-APP-default-rtdb.firebaseio.com)
+//   4. Paste it below replacing the placeholder
+const FIREBASE_URL = 'https://chad-game-default-rtdb.firebaseio.com';
+
+async function submitScoreToCloud(score) {
+  if (!walletAddress || !FIREBASE_URL) return;
+  try {
+    const url = `${FIREBASE_URL}/leaderboard/${walletAddress}.json`;
+    const existing = await fetch(url).then(r => r.json()).catch(() => null);
+    if (existing && typeof existing.score === 'number' && existing.score >= score) return;
+    await fetch(url, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        wallet: truncate(walletAddress),
+        xUser: xUsername || 'ANON',
+        score,
+        date: new Date().toISOString().slice(0, 10),
+        ts: Date.now()
+      })
+    });
+  } catch(e) { console.warn('Score sync failed:', e); }
+}
+
+async function fetchCloudScores(weekOnly) {
+  if (!FIREBASE_URL) return null;
+  try {
+    const data = await fetch(`${FIREBASE_URL}/leaderboard.json`).then(r => r.json());
+    if (!data) return [];
+    let rows = Object.entries(data).map(([wallet, v]) => ({...v, isMe: wallet === walletAddress}));
+    if (weekOnly) {
+      const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      rows = rows.filter(r => (r.ts || 0) >= weekAgo);
+    }
+    return rows.sort((a, b) => b.score - a.score).slice(0, 10);
+  } catch(e) { console.warn('Leaderboard fetch failed:', e); return null; }
+}
 
 
 // ══════════════════════════════════════════
@@ -942,36 +984,42 @@ function setLbPeriod(period, el){
   renderLeaderboard();
 }
 
-function renderLeaderboard(){
-  const rows = getMergedScores(currentLbTab, currentLbPeriod);
+function renderLbRows(rows, tbody){
   const medals = ['🥇','🥈','🥉'];
-  const gameNames = {flappy:'Flappy Beard',dodge:'Chad Dodge',moonrug:'Moon or Rug'};
-  const tbody = document.getElementById('lb-tbody');
-  tbody.innerHTML = rows.map((r,i)=>`
+  tbody.innerHTML = rows.length ? rows.map((r,i)=>`
     <tr class="${r.isMe?'me':''}">
       <td>${i+1}</td>
       <td>${i<3?medals[i]:''}</td>
-      <td>${r.wallet}</td>
+      <td>${r.xUser||'ANON'}</td>
+      <td>${r.wallet||''}</td>
       <td style="color:var(--gold);font-weight:700;">${r.score}</td>
-      <td style="color:var(--muted2);font-size:9px;">${gameNames[r.game]||r.game}</td>
       <td style="color:var(--muted2);">${r.date||''}</td>
-      <td><span class="lb-xbadge ${r.xPosted?'yes':'no'}">${r.xPosted?'✓ X POST':'—'}</span></td>
-    </tr>`).join('');
+    </tr>`).join('')
+  : `<tr><td colspan="6" style="text-align:center;color:var(--muted2);padding:24px;">No scores yet — be the first!</td></tr>`;
 }
 
-function renderLbPreview(){
-  const rows = getMergedScores('all','week').slice(0,5);
+async function renderLeaderboard(){
+  const tbody = document.getElementById('lb-tbody');
+  tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted2);padding:20px;">Loading...</td></tr>`;
+  const weekOnly = currentLbPeriod === 'week';
+  const cloud = await fetchCloudScores(weekOnly);
+  const rows = cloud !== null ? cloud : getMergedScores(currentLbTab, currentLbPeriod);
+  renderLbRows(rows, tbody);
+}
+
+async function renderLbPreview(){
+  const container = document.getElementById('lb-preview-rows');
   const medals = ['🥇','🥈','🥉'];
-  const gameNames = {flappy:'Flappy',dodge:'Dodge',moonrug:'Moon/Rug'};
-  document.getElementById('lb-preview-rows').innerHTML = rows.map((r,i)=>`
+  const cloud = await fetchCloudScores(false);
+  const rows = (cloud !== null ? cloud : getMergedScores('all','week')).slice(0,5);
+  container.innerHTML = rows.length ? rows.map((r,i)=>`
     <div class="lb-row">
       <span class="lb-rank">${i+1}</span>
       <span class="lb-medal">${i<3?medals[i]:''}</span>
-      <span class="lb-wallet ${r.isMe?'me':''}">${r.wallet}</span>
-      <span class="lb-game">${gameNames[r.game]||r.game}</span>
+      <span class="lb-wallet ${r.isMe?'me':''}">${r.xUser||r.wallet||'ANON'}</span>
       <span class="lb-score">${r.score}</span>
-      <span class="lb-xpost ${r.xPosted?'':'no'}">${r.xPosted?'✓':'—'}</span>
-    </div>`).join('');
+    </div>`).join('')
+  : `<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted2);padding:12px 0;">No scores yet.</div>`;
 }
 
 // ══════════════════════════════════════════
@@ -1016,6 +1064,7 @@ function gameOver(score, gameName, gameKey){
   stopLoop(); clearInputs();
   lastGameScore = score; lastGameName = gameName; lastGameKey = gameKey;
   saveBest(gameKey, score);
+  submitScoreToCloud(score);
   document.getElementById('go-game-name').textContent = gameName.toUpperCase();
   document.getElementById('go-score').textContent = score;
   document.getElementById('go-best').textContent = bests[gameKey];
