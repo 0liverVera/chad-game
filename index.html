@@ -648,6 +648,10 @@ const jeetImgs = ['obstacle 1 .png', 'obstacle 2 .png', 'obstacle 3 .png'].map(s
   return img;
 });
 
+// ── CHAD FACE IMAGE ──
+const chadFaceImg = new Image();
+chadFaceImg.src = 'chadface.png';
+
 // ── FIREBASE REALTIME DATABASE ──
 // Setup (one time, ~2 min):
 //   1. Go to console.firebase.google.com → Add project
@@ -1216,7 +1220,16 @@ function drawFlappy(){
   ctx.fillStyle='#0a2010';ctx.fillRect(0,GH-26,GW,26);
   ctx.strokeStyle='rgba(0,229,84,.2)';ctx.lineWidth=1;
   ctx.beginPath();ctx.moveTo(0,GH-26);ctx.lineTo(GW,GH-26);ctx.stroke();
-  pDraw();drawChad(82,FB.bird.y,22,FB.bird.rot);
+  pDraw();
+  ctx.save();
+  ctx.translate(82,FB.bird.y);
+  ctx.rotate(FB.bird.rot);
+  if(chadFaceImg.complete&&chadFaceImg.naturalWidth){
+    ctx.drawImage(chadFaceImg,-25,-25,50,50);
+  } else {
+    drawChad(0,0,22,0);
+  }
+  ctx.restore();
   if(FB.st!=='idle') drawScore(FB.score,GW/2,54);
   if(FB.st==='idle') drawIdleOverlay('FLAPPY BEARD','CANDLE TV EDITION',FB.frame);
   // High score top-right during gameplay
