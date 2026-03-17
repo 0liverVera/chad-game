@@ -1248,6 +1248,18 @@ function drawJeetPipe(x,gapY,gap,img){
     ctx.drawImage(img,0,0,w,gapY);
     ctx.restore();
   }
+  // Danger zone fill + glowing green border matching exact hitbox
+  ctx.save();
+  ctx.fillStyle='rgba(255,215,0,0.08)';
+  if(gapY>0) ctx.fillRect(x,0,w,gapY);
+  if(botH>0) ctx.fillRect(x,gapY+gap,w,botH);
+  ctx.strokeStyle='#00ff88';
+  ctx.lineWidth=2.5;
+  ctx.shadowColor='#00ff88';
+  ctx.shadowBlur=10;
+  if(gapY>0) ctx.strokeRect(x,0,w,gapY);
+  if(botH>0) ctx.strokeRect(x,gapY+gap,w,botH);
+  ctx.restore();
 }
 
 
