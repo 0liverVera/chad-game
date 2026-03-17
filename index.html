@@ -1039,7 +1039,10 @@ async function renderLbPreview(){
 const GW = 420, GH = 560;
 const canvas = document.getElementById('gc');
 const ctx = canvas.getContext('2d');
-canvas.width = GW; canvas.height = GH;
+const dpr = window.devicePixelRatio || 1;
+canvas.width = GW * dpr; canvas.height = GH * dpr;
+canvas.style.width = GW + 'px'; canvas.style.height = GH + 'px';
+ctx.scale(dpr, dpr);
 
 function startGame(game){
   currentGame = game; lastGameKey = game;
