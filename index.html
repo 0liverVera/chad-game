@@ -1194,7 +1194,7 @@ function tickFlappy(dt){
   if(FB.bird.y+22>GH-26){fbDie();return;}
   FB.pTimer+=dt;
   const gap=Math.max(152,200-FB.score*1.6);
-  if(FB.pTimer>=88){FB.pTimer=0;const gapY=75+Math.random()*(GH-gap-110);FB.pipes.push({x:GW+62,gapY,gap,scored:false,img:jeetImgs[Math.floor(Math.random()*3)]});}
+  if(FB.pTimer>=88){FB.pTimer=0;const minGapY=Math.max(60,GH-gap-246);const maxGapY=Math.min(200,GH-gap-100);const gapY=minGapY+Math.random()*(maxGapY-minGapY);FB.pipes.push({x:GW+62,gapY,gap,scored:false,img:jeetImgs[Math.floor(Math.random()*3)]});}
   for(let i=FB.pipes.length-1;i>=0;i--){
     const p=FB.pipes[i];p.x-=2.9*sp;
     if(!p.scored&&p.x+62<82-22){p.scored=true;FB.score++;pSpawn(82,FB.bird.y,'#f5c518',10);}
@@ -1236,23 +1236,25 @@ function drawFlappy(){
 
 function drawJeetPipe(x,gapY,gap,img){
   const w=62;
-  if(!img||!img.complete||!img.naturalWidth){return;}
-  // Bottom pipe — right-side up, rising from the bottom
   const botH=GH-(gapY+gap)-26;
-  if(botH>0) ctx.drawImage(img,x,gapY+gap,w,botH);
-  // Top pipe — flipped vertically, hanging from the top
-  if(gapY>0){
-    ctx.save();
-    ctx.translate(x,gapY);
-    ctx.scale(1,-1);
-    ctx.drawImage(img,0,0,w,gapY);
-    ctx.restore();
+  if(img&&img.complete&&img.naturalWidth){
+    // Bottom pipe — fill the full box right-side up
+    if(botH>0) ctx.drawImage(img,x,gapY+gap,w,botH);
+    // Top pipe — fill the full box flipped vertically (upside down)
+    if(gapY>0){
+      ctx.save();
+      ctx.translate(x,gapY);
+      ctx.scale(1,-1);
+      ctx.drawImage(img,0,0,w,gapY);
+      ctx.restore();
+    }
   }
-  // Danger zone fill + glowing green border matching exact hitbox
+  // Subtle gold danger zone tint
   ctx.save();
   ctx.fillStyle='rgba(255,215,0,0.08)';
   if(gapY>0) ctx.fillRect(x,0,w,gapY);
   if(botH>0) ctx.fillRect(x,gapY+gap,w,botH);
+  // Glowing green border — exact hitbox
   ctx.strokeStyle='#00ff88';
   ctx.lineWidth=2.5;
   ctx.shadowColor='#00ff88';
