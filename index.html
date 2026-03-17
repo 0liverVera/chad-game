@@ -696,6 +696,8 @@ function submitLogin(){
   xUsername = x.startsWith('@') ? x : '@' + x;
   walletAddress = w;
 
+  localStorage.setItem('chad_session', JSON.stringify({xUsername, walletAddress}));
+
   closeLoginModal();
   onUserLoggedIn();
 }
@@ -722,6 +724,7 @@ function onUserLoggedIn(){
 function logoutUser(){
   xUsername = null;
   walletAddress = null;
+  localStorage.removeItem('chad_session');
 
   const pill = document.getElementById('nav-user-pill');
   if(pill) pill.classList.remove('show');
@@ -748,6 +751,14 @@ window.addEventListener('load', ()=>{
   startCountdown();
   initStatementReveal();
   initScrollReveal();
+
+  // Restore session from localStorage so wallet progress persists across page reloads
+  const saved = JSON.parse(localStorage.getItem('chad_session') || 'null');
+  if(saved && saved.walletAddress && saved.xUsername){
+    xUsername = saved.xUsername;
+    walletAddress = saved.walletAddress;
+    onUserLoggedIn();
+  }
 });
 
 // ══════════════════════════════════════════
