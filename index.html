@@ -566,6 +566,9 @@ canvas{display:block;}
 <div id="screen-leaderboard" class="screen">
   <div class="lb-page-title">HALL OF CHADS</div>
   <div class="lb-page-sub">WEEKLY LEADERBOARD · PRIZES EVERY SUNDAY</div>
+  <div style="text-align:center;margin-bottom:12px;">
+    <button class="view-lb-btn" style="width:auto;padding:8px 24px;font-size:12px;" onclick="renderLeaderboard()">↻ REFRESH</button>
+  </div>
   <div class="lb-timer-wrap">
     <span class="timer-label">NEXT RESET: </span>
     <span class="timer-value" id="lb-countdown">--d --h --m --s</span>
@@ -662,28 +665,36 @@ const FIREBASE_URL = 'https://chad-b62a4-default-rtdb.firebaseio.com';
 
 async function submitScoreToCloud(score) {
   if (!walletAddress || !FIREBASE_URL) return;
-  try {
-    const url = `${FIREBASE_URL}/leaderboard/${walletAddress}.json`;
-    const existing = await fetch(url).then(r => r.json()).catch(() => null);
+  const url = `${FIREBASE_URL}/leaderboard/${walletAddress}.json`;
+  const payload = JSON.stringify({
+    wallet: truncate(walletAddress),
+    xUser: xUsername || 'ANON',
+    score,
+    date: new Date().toISOString().slice(0, 10),
+    ts: Date.now()
+  });
+  // Check existing best first — only write if this is a new high score
+  const trySubmit = async () => {
+    const existing = await fetch(url, {mode:'cors'}).then(r => r.json()).catch(() => null);
     if (existing && typeof existing.score === 'number' && existing.score >= score) return;
     await fetch(url, {
       method: 'PUT',
+      mode: 'cors',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        wallet: truncate(walletAddress),
-        xUser: xUsername || 'ANON',
-        score,
-        date: new Date().toISOString().slice(0, 10),
-        ts: Date.now()
-      })
+      body: payload
     });
-  } catch(e) { console.warn('Score sync failed:', e); }
+  };
+  // First attempt
+  trySubmit().catch(() => {
+    // Retry once after 2s (handles brief network hiccups on mobile)
+    setTimeout(() => trySubmit().catch(e => console.warn('Score sync failed:', e)), 2000);
+  });
 }
 
 async function fetchCloudScores(weekOnly) {
   if (!FIREBASE_URL) return null;
   try {
-    const data = await fetch(`${FIREBASE_URL}/leaderboard.json`).then(r => r.json());
+    const data = await fetch(`${FIREBASE_URL}/leaderboard.json`, {mode:'cors'}).then(r => r.json());
     if (!data) return [];
     let rows = Object.entries(data).map(([wallet, v]) => ({...v, isMe: wallet === walletAddress}));
     if (weekOnly) {
