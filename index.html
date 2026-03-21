@@ -1461,12 +1461,12 @@ function drawFlappy(){
   }
   // Level-up flash overlay
   if(FB.levelFlash>0){
-    const a=Math.min(.5,FB.levelFlash/30);
+    const a=Math.min(.25,FB.levelFlash/60);
     ctx.fillStyle=`rgba(245,197,24,${a})`;ctx.fillRect(-10,-10,GW+20,GH+20);
     if(FB.levelFlash>25){
       ctx.save();ctx.textAlign='center';
       ctx.font='bold 52px "Bebas Neue",sans-serif';
-      ctx.fillStyle='#fff';ctx.shadowColor='#f5c518';ctx.shadowBlur=28;
+      ctx.fillStyle='#fff';ctx.shadowColor='#f5c518';ctx.shadowBlur=14;
       ctx.fillText(FB.levelText,GW/2,GH/2-10);
       ctx.font='400 10px "DM Mono",monospace';ctx.shadowBlur=0;
       ctx.fillStyle='rgba(255,255,255,.75)';
