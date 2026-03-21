@@ -1289,6 +1289,15 @@ function initFlappy(){
 }
 
 function fbFlap(){
+  // Unlock Web Audio on mobile (iOS requires a silent buffer played within the user gesture)
+  if(!audioCtx){
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const buf=audioCtx.createBuffer(1,1,22050);
+    const src=audioCtx.createBufferSource();
+    src.buffer=buf;src.connect(audioCtx.destination);src.start(0);
+  } else if(audioCtx.state==='suspended'){
+    audioCtx.resume();
+  }
   if(FB.st==='idle'){FB.st='playing';FB.bird.vy=-9.5;startBgMusic();}
   else if(FB.st==='playing'){FB.bird.vy=-9.5;pSpawn(82,FB.bird.y,'#00ff5e',5);}
   playFlap();
