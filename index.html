@@ -1154,10 +1154,13 @@ let bgMusicTimeout = null;
 let bgNoteIdx = 0;
 let musicEnabled = localStorage.getItem('chad_music') !== 'off';
 
+let iosSilentAudio = null;
+
 function unlockAudio(){
   if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+
   if(audioCtx.state !== 'running'){
-    // Silent 1-sample buffer — required by iOS Safari to fully unlock the context
+    // Silent 1-sample buffer — unlocks the AudioContext on iOS
     try{
       const buf=audioCtx.createBuffer(1,1,22050);
       const src=audioCtx.createBufferSource();
@@ -1165,6 +1168,22 @@ function unlockAudio(){
     }catch(e){}
     audioCtx.resume();
   }
+
+  // iOS mute/silent-switch fix:
+  // Web Audio uses the "ambient" audio session which is silenced by the mute switch.
+  // Spotify ignores the mute switch because it uses "playback" session.
+  // Playing a silent HTMLAudioElement connected to a MediaStream forces iOS into
+  // "playback" session so Web Audio plays even when the mute switch is on.
+  if(!iosSilentAudio){
+    try{
+      const dest = audioCtx.createMediaStreamDestination();
+      iosSilentAudio = new Audio();
+      iosSilentAudio.srcObject = dest.stream;
+      iosSilentAudio.loop = true;
+      iosSilentAudio.volume = 0.001;
+    }catch(e){}
+  }
+  if(iosSilentAudio) iosSilentAudio.play().catch(()=>{});
 }
 
 function toggleMusic(){
