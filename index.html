@@ -1056,6 +1056,11 @@ canvas.style.width = GW + 'px'; canvas.style.height = GH + 'px';
 ctx.scale(dpr, dpr);
 
 function startGame(game){
+  // Unlock Web Audio here — this runs inside the PLAY button's click/touch handler,
+  // which iOS recognises as a user gesture. By the time the user taps to flap,
+  // the context will already be in 'running' state.
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state!=='running') audioCtx.resume();
   currentGame = game; lastGameKey = game;
   showScreen('screen-game');
   stopLoop(); clearInputs();
@@ -1133,7 +1138,7 @@ function playTone(freq,type,start,dur,gain=0.15){
   try{
     const c=getAudioCtx();
     // Clamp start time so tones are never scheduled at t=0 (iOS drops them)
-    const t=Math.max(start, c.currentTime+0.001);
+    const t=Math.max(start, c.currentTime+0.05);
     const osc=c.createOscillator(),g=c.createGain();
     osc.connect(g);g.connect(c.destination);
     osc.type=type;osc.frequency.setValueAtTime(freq,t);
