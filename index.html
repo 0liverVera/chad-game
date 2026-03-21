@@ -245,7 +245,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:60px;padding:0 32px;d
 
 /* GAME SCREEN */
 #screen-game{min-height:calc(100vh - 60px);align-items:center;justify-content:center;padding:20px;flex-direction:column;background:var(--bg);}
-.canvas-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 0 60px rgba(0,229,84,.08);}
+.canvas-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 0 60px rgba(0,229,84,.08);position:relative;}
+.music-toggle{position:absolute;top:10px;right:10px;z-index:10;background:rgba(0,0,0,.55);border:1px solid rgba(0,229,84,.25);border-radius:100px;padding:5px 12px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--green);cursor:pointer;transition:all .2s;backdrop-filter:blur(4px);}
+.music-toggle:hover{background:rgba(0,229,84,.1);border-color:rgba(0,229,84,.5);}
+.music-toggle.muted{color:var(--muted);border-color:rgba(255,255,255,.1);}
 canvas{display:block;}
 
 /* GAME OVER */
@@ -528,6 +531,7 @@ canvas{display:block;}
 <div id="screen-game" class="screen">
   <div class="canvas-wrap">
     <canvas id="gc"></canvas>
+    <button class="music-toggle" id="music-toggle-btn" onclick="toggleMusic()">♪ MUSIC</button>
   </div>
 </div>
 
@@ -1063,6 +1067,7 @@ function startGame(game){
   if(audioCtx.state!=='running') audioCtx.resume();
   currentGame = game; lastGameKey = game;
   showScreen('screen-game');
+  syncMusicBtn();
   stopLoop(); clearInputs();
   if(game==='flappy') initFlappy();
   startLoop();
@@ -1127,6 +1132,29 @@ let audioCtx = null;
 let bgMusicPlaying = false;
 let bgMusicTimeout = null;
 let bgNoteIdx = 0;
+let musicEnabled = localStorage.getItem('chad_music') !== 'off';
+
+function toggleMusic(){
+  musicEnabled = !musicEnabled;
+  localStorage.setItem('chad_music', musicEnabled ? 'on' : 'off');
+  const btn = document.getElementById('music-toggle-btn');
+  if(musicEnabled){
+    btn.textContent = '♪ MUSIC';
+    btn.classList.remove('muted');
+    if(typeof FB !== 'undefined' && FB.st === 'playing') startBgMusic();
+  } else {
+    btn.textContent = '♪ OFF';
+    btn.classList.add('muted');
+    stopBgMusic();
+  }
+}
+
+function syncMusicBtn(){
+  const btn = document.getElementById('music-toggle-btn');
+  if(!btn) return;
+  if(musicEnabled){ btn.textContent='♪ MUSIC'; btn.classList.remove('muted'); }
+  else { btn.textContent='♪ OFF'; btn.classList.add('muted'); }
+}
 
 function getAudioCtx(){
   if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
@@ -1205,7 +1233,7 @@ function scheduleBgNote(){
 }
 
 function startBgMusic(){
-  if(bgMusicPlaying) return;
+  if(bgMusicPlaying || !musicEnabled) return;
   bgMusicPlaying=true;bgNoteIdx=0;
   scheduleBgNote();
 }
