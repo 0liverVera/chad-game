@@ -809,8 +809,6 @@ function onUserLoggedIn(){
   if(ctaBtn) ctaBtn.textContent = 'ENTER ARCADE →';
 
   getOrCreateProfile(walletAddress);
-  loadBests();
-  syncBestsFromCloud();
   showArcade();
 }
 
@@ -940,8 +938,9 @@ function goHome(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function showArcade(){
+async function showArcade(){
   stopLoop(); clearInputs();
+  await syncBestsFromCloud();
   loadBests(); updateStats(); renderLbPreview(); renderProfileCard();
   showScreen('screen-arcade');
 }
@@ -1085,11 +1084,7 @@ canvas.style.width = GW + 'px'; canvas.style.height = GH + 'px';
 ctx.scale(dpr, dpr);
 
 function startGame(game){
-  // Unlock Web Audio here — this runs inside the PLAY button's click/touch handler,
-  // which iOS recognises as a user gesture. By the time the user taps to flap,
-  // the context will already be in 'running' state.
-  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state!=='running') audioCtx.resume();
+  unlockAudio(); // must happen inside this user-gesture handler
   currentGame = game; lastGameKey = game;
   showScreen('screen-game');
   syncMusicBtn();
@@ -1158,6 +1153,19 @@ let bgMusicPlaying = false;
 let bgMusicTimeout = null;
 let bgNoteIdx = 0;
 let musicEnabled = localStorage.getItem('chad_music') !== 'off';
+
+function unlockAudio(){
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state !== 'running'){
+    // Silent 1-sample buffer — required by iOS Safari to fully unlock the context
+    try{
+      const buf=audioCtx.createBuffer(1,1,22050);
+      const src=audioCtx.createBufferSource();
+      src.buffer=buf; src.connect(audioCtx.destination); src.start(0);
+    }catch(e){}
+    audioCtx.resume();
+  }
+}
 
 function toggleMusic(){
   musicEnabled = !musicEnabled;
@@ -1349,15 +1357,7 @@ function initFlappy(){
 }
 
 function fbFlap(){
-  // Unlock Web Audio on iOS — must create context, play silent buffer, AND call resume()
-  // all within the same synchronous user-gesture handler
-  if(!audioCtx){
-    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-    const buf=audioCtx.createBuffer(1,1,22050);
-    const src=audioCtx.createBufferSource();
-    src.buffer=buf;src.connect(audioCtx.destination);src.start(0);
-  }
-  if(audioCtx.state!=='running') audioCtx.resume();
+  unlockAudio();
   if(FB.st==='idle'){FB.st='playing';FB.bird.vy=-9.5;startBgMusic();}
   else if(FB.st==='playing'){FB.bird.vy=-9.5;pSpawn(82,FB.bird.y,'#00ff5e',5);}
   playFlap();
