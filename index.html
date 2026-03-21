@@ -1230,7 +1230,7 @@ function playTone(freq,type,start,dur,gain=0.15){
 }
 
 function playFlap(){
-  try{const c=getAudioCtx(),t=c.currentTime;playTone(540,'square',t,0.07,0.05);}catch(e){}
+  try{const c=getAudioCtx(),t=c.currentTime;playTone(540,'square',t,0.07,0.015);}catch(e){}
 }
 
 function playScore(){
@@ -1281,8 +1281,8 @@ function scheduleBgNote(){
     playTone(freq,'square',t,0.11,0.035);
     if(bgNoteIdx%4===0) playTone(freq/2,'triangle',t,0.18,0.045);
   }catch(e){}
-  // Start slow (300ms), speed up as score increases, cap at 80ms
-  const interval = Math.max(80, 300 - (FB.score||0) * 3);
+  // Start at 220ms, speed up as score increases, cap at 80ms
+  const interval = Math.max(80, 220 - (FB.score||0) * 3);
   bgMusicTimeout=setTimeout(scheduleBgNote, interval);
 }
 
