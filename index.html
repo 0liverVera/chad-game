@@ -749,8 +749,8 @@ function submitLogin(){
     err.classList.remove('hidden');
     return;
   }
-  // Basic Solana address validation (32-44 chars, base58)
-  if(w.length < 32 || w.length > 44){
+  // Basic Solana address validation (32-44 chars, base58) — "test" bypasses for dev
+  if(w !== 'test' && (w.length < 32 || w.length > 44)){
     err.textContent = 'Please enter a valid Solana wallet address.';
     err.classList.remove('hidden');
     return;
