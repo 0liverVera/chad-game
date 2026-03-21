@@ -246,9 +246,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:60px;padding:0 32px;d
 /* GAME SCREEN */
 #screen-game{min-height:calc(100vh - 60px);align-items:center;justify-content:center;padding:20px;flex-direction:column;background:var(--bg);}
 .canvas-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 0 60px rgba(0,229,84,.08);position:relative;}
-.music-toggle{position:absolute;top:10px;left:10px;z-index:10;background:rgba(0,0,0,.55);border:1px solid rgba(0,229,84,.25);border-radius:100px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;transition:all .2s;backdrop-filter:blur(4px);}
+.music-toggle{position:absolute;top:10px;left:10px;z-index:10;background:rgba(0,0,0,.55);border:1px solid rgba(0,229,84,.25);border-radius:100px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--green);cursor:pointer;transition:all .2s;backdrop-filter:blur(4px);}
 .music-toggle:hover{background:rgba(0,229,84,.1);border-color:rgba(0,229,84,.5);}
-.music-toggle.muted{opacity:0.35;border-color:rgba(255,255,255,.1);}
+.music-toggle.muted{opacity:0.3;border-color:rgba(255,255,255,.1);}
 canvas{display:block;}
 
 /* GAME OVER */
@@ -531,7 +531,7 @@ canvas{display:block;}
 <div id="screen-game" class="screen">
   <div class="canvas-wrap">
     <canvas id="gc"></canvas>
-    <button class="music-toggle" id="music-toggle-btn" onclick="toggleMusic()">♪</button>
+    <button class="music-toggle" id="music-toggle-btn" onclick="toggleMusic()">♪ MUSIC</button>
   </div>
 </div>
 
@@ -1139,9 +1139,11 @@ function toggleMusic(){
   localStorage.setItem('chad_music', musicEnabled ? 'on' : 'off');
   const btn = document.getElementById('music-toggle-btn');
   if(musicEnabled){
+    btn.textContent = '♪ MUSIC';
     btn.classList.remove('muted');
     if(typeof FB !== 'undefined' && FB.st === 'playing') startBgMusic();
   } else {
+    btn.textContent = '♪ OFF';
     btn.classList.add('muted');
     stopBgMusic();
   }
@@ -1150,8 +1152,8 @@ function toggleMusic(){
 function syncMusicBtn(){
   const btn = document.getElementById('music-toggle-btn');
   if(!btn) return;
-  if(musicEnabled){ btn.classList.remove('muted'); }
-  else { btn.classList.add('muted'); }
+  if(musicEnabled){ btn.textContent='♪ MUSIC'; btn.classList.remove('muted'); }
+  else { btn.textContent='♪ OFF'; btn.classList.add('muted'); }
 }
 
 function getAudioCtx(){
