@@ -245,7 +245,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;height:60px;padding:0 32px;d
 
 /* GAME SCREEN */
 #screen-game{min-height:calc(100vh - 60px);align-items:center;justify-content:center;padding:20px;flex-direction:column;background:var(--bg);}
-.canvas-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 0 60px rgba(0,229,84,.08);}
+.canvas-wrap{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 0 60px rgba(0,229,84,.08);position:relative;}
+.music-toggle{position:absolute;top:10px;right:10px;z-index:10;background:rgba(0,0,0,.55);border:1px solid rgba(0,229,84,.25);border-radius:100px;padding:5px 12px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--green);cursor:pointer;transition:all .2s;backdrop-filter:blur(4px);}
+.music-toggle:hover{background:rgba(0,229,84,.1);border-color:rgba(0,229,84,.5);}
+.music-toggle.muted{color:var(--muted);border-color:rgba(255,255,255,.1);}
 canvas{display:block;}
 
 /* GAME OVER */
@@ -528,6 +531,7 @@ canvas{display:block;}
 <div id="screen-game" class="screen">
   <div class="canvas-wrap">
     <canvas id="gc"></canvas>
+    <button class="music-toggle" id="music-toggle-btn" onclick="toggleMusic()">♪ MUSIC</button>
   </div>
 </div>
 
@@ -749,8 +753,8 @@ function submitLogin(){
     err.classList.remove('hidden');
     return;
   }
-  // Basic Solana address validation (32-44 chars, base58)
-  if(w.length < 32 || w.length > 44){
+  // Basic Solana address validation (32-44 chars, base58) — "test" bypasses for dev
+  if(w !== 'test' && (w.length < 32 || w.length > 44)){
     err.textContent = 'Please enter a valid Solana wallet address.';
     err.classList.remove('hidden');
     return;
@@ -1056,8 +1060,14 @@ canvas.style.width = GW + 'px'; canvas.style.height = GH + 'px';
 ctx.scale(dpr, dpr);
 
 function startGame(game){
+  // Unlock Web Audio here — this runs inside the PLAY button's click/touch handler,
+  // which iOS recognises as a user gesture. By the time the user taps to flap,
+  // the context will already be in 'running' state.
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state!=='running') audioCtx.resume();
   currentGame = game; lastGameKey = game;
   showScreen('screen-game');
+  syncMusicBtn();
   stopLoop(); clearInputs();
   if(game==='flappy') initFlappy();
   startLoop();
@@ -1114,6 +1124,124 @@ function pSpawn(x,y,col,n,spd=3){
 }
 function pUpdate(dt){ for(let i=parts.length-1;i>=0;i--){ const p=parts[i]; p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=.13*dt;p.life-=p.decay*dt; if(p.life<=0) parts.splice(i,1); } }
 function pDraw(){ parts.forEach(p=>{ ctx.save();ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.col;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore(); }); }
+
+// ══════════════════════════════════════════
+// AUDIO ENGINE
+// ══════════════════════════════════════════
+let audioCtx = null;
+let bgMusicPlaying = false;
+let bgMusicTimeout = null;
+let bgNoteIdx = 0;
+let musicEnabled = localStorage.getItem('chad_music') !== 'off';
+
+function toggleMusic(){
+  musicEnabled = !musicEnabled;
+  localStorage.setItem('chad_music', musicEnabled ? 'on' : 'off');
+  const btn = document.getElementById('music-toggle-btn');
+  if(musicEnabled){
+    btn.textContent = '♪ MUSIC';
+    btn.classList.remove('muted');
+    if(typeof FB !== 'undefined' && FB.st === 'playing') startBgMusic();
+  } else {
+    btn.textContent = '♪ OFF';
+    btn.classList.add('muted');
+    stopBgMusic();
+  }
+}
+
+function syncMusicBtn(){
+  const btn = document.getElementById('music-toggle-btn');
+  if(!btn) return;
+  if(musicEnabled){ btn.textContent='♪ MUSIC'; btn.classList.remove('muted'); }
+  else { btn.textContent='♪ OFF'; btn.classList.add('muted'); }
+}
+
+function getAudioCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state!=='running') audioCtx.resume();
+  return audioCtx;
+}
+
+function playTone(freq,type,start,dur,gain=0.15){
+  try{
+    const c=getAudioCtx();
+    // Clamp start time so tones are never scheduled at t=0 (iOS drops them)
+    const t=Math.max(start, c.currentTime+0.05);
+    const osc=c.createOscillator(),g=c.createGain();
+    osc.connect(g);g.connect(c.destination);
+    osc.type=type;osc.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(gain,t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    osc.start(t);osc.stop(t+dur+0.02);
+  }catch(e){}
+}
+
+function playFlap(){
+  try{const c=getAudioCtx(),t=c.currentTime;playTone(540,'square',t,0.07,0.05);}catch(e){}
+}
+
+function playScore(){
+  try{
+    const c=getAudioCtx(),t=c.currentTime;
+    playTone(880,'triangle',t,0.1,0.1);
+    playTone(1100,'triangle',t+0.06,0.1,0.08);
+  }catch(e){}
+}
+
+function playDeath(){
+  try{
+    const c=getAudioCtx(),t=c.currentTime;
+    playTone(220,'sawtooth',t,0.18,0.2);
+    playTone(160,'sawtooth',t+0.09,0.18,0.2);
+    playTone(110,'sawtooth',t+0.18,0.28,0.2);
+    const buf=c.createBuffer(1,c.sampleRate*0.15,c.sampleRate);
+    const data=buf.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*0.28;
+    const src=c.createBufferSource(),g=c.createGain();
+    src.buffer=buf;src.connect(g);g.connect(c.destination);
+    g.gain.setValueAtTime(0.28,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+    src.start(t);
+  }catch(e){}
+}
+
+function playHighScore(){
+  try{
+    const c=getAudioCtx(),t=c.currentTime;
+    [523,659,784,1047,1568].forEach((f,i)=>playTone(f,'triangle',t+i*0.09,0.28,0.18));
+  }catch(e){}
+}
+
+function playLevelUp(){
+  try{
+    const c=getAudioCtx(),t=c.currentTime;
+    [523,659,784].forEach((f,i)=>playTone(f,'square',t+i*0.07,0.2,0.13));
+  }catch(e){}
+}
+
+// Background music — chiptune arpeggio
+const BG_SEQ=[262,330,392,523,392,330,392,523,294,370,440,587,440,370,440,587,349,440,523,698,523,440,523,698];
+function scheduleBgNote(){
+  if(!bgMusicPlaying) return;
+  try{
+    const c=getAudioCtx(),t=c.currentTime;
+    const freq=BG_SEQ[bgNoteIdx%BG_SEQ.length];bgNoteIdx++;
+    playTone(freq,'square',t,0.11,0.035);
+    if(bgNoteIdx%4===0) playTone(freq/2,'triangle',t,0.18,0.045);
+  }catch(e){}
+  bgMusicTimeout=setTimeout(scheduleBgNote,145);
+}
+
+function startBgMusic(){
+  if(bgMusicPlaying || !musicEnabled) return;
+  bgMusicPlaying=true;bgNoteIdx=0;
+  scheduleBgNote();
+}
+
+function stopBgMusic(){
+  bgMusicPlaying=false;
+  if(bgMusicTimeout){clearTimeout(bgMusicTimeout);bgMusicTimeout=null;}
+}
 
 // ── SHARED DRAW ──
 function drawBg(){
@@ -1189,20 +1317,33 @@ const FB = {};
 
 function initFlappy(){
   parts=[];
-  Object.assign(FB,{st:'idle',score:0,frame:0,bird:{y:GH/2,vy:0,rot:0},pipes:[],pTimer:0,speed:1,stars:makeStars(48),flashRed:0});
+  Object.assign(FB,{st:'idle',score:0,frame:0,bird:{y:GH/2,vy:0,rot:0},pipes:[],pTimer:0,speed:1,stars:makeStars(48),flashRed:0,newHs:false,hsFlash:0,levelFlash:0,levelText:'',lastMilestone:-1,shake:0});
   canvas.onclick=()=>fbFlap();
   canvas.ontouchstart=e=>{e.preventDefault();fbFlap();};
   document.onkeydown=e=>{if(['Space','ArrowUp'].includes(e.code)){e.preventDefault();fbFlap();}};
 }
 
 function fbFlap(){
-  if(FB.st==='idle'){FB.st='playing';FB.bird.vy=-9.5;}
+  // Unlock Web Audio on iOS — must create context, play silent buffer, AND call resume()
+  // all within the same synchronous user-gesture handler
+  if(!audioCtx){
+    audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    const buf=audioCtx.createBuffer(1,1,22050);
+    const src=audioCtx.createBufferSource();
+    src.buffer=buf;src.connect(audioCtx.destination);src.start(0);
+  }
+  if(audioCtx.state!=='running') audioCtx.resume();
+  if(FB.st==='idle'){FB.st='playing';FB.bird.vy=-9.5;startBgMusic();}
   else if(FB.st==='playing'){FB.bird.vy=-9.5;pSpawn(82,FB.bird.y,'#00ff5e',5);}
+  playFlap();
 }
 
 function tickFlappy(dt){
   FB.frame++;pUpdate(dt);
   if(FB.flashRed>0) FB.flashRed-=dt;
+  if(FB.hsFlash>0) FB.hsFlash-=dt;
+  if(FB.levelFlash>0) FB.levelFlash-=dt;
+  if(FB.shake>0) FB.shake-=dt;
   if(FB.st!=='playing'){drawFlappy();return;}
   FB.speed=1+FB.score*0.02;
   const sp=FB.speed*dt;
@@ -1215,7 +1356,7 @@ function tickFlappy(dt){
   if(FB.pTimer>=88){FB.pTimer=0;const minGapY=Math.max(60,GH-gap-246);const maxGapY=Math.min(200,GH-gap-100);const gapY=minGapY+Math.random()*(maxGapY-minGapY);FB.pipes.push({x:GW+62,gapY,gap,scored:false,img:jeetImgs[Math.floor(Math.random()*3)]});}
   for(let i=FB.pipes.length-1;i>=0;i--){
     const p=FB.pipes[i];p.x-=2.9*sp;
-    if(!p.scored&&p.x+62<82-22){p.scored=true;FB.score++;pSpawn(82,FB.bird.y,'#f5c518',10);}
+    if(!p.scored&&p.x+62<82-22){p.scored=true;FB.score++;pSpawn(82,FB.bird.y,'#f5c518',10);playScore();if(FB.score>bests.flappy&&!FB.newHs){FB.newHs=true;FB.hsFlash=200;pSpawn(82,FB.bird.y,'#f5c518',30);pSpawn(GW/2,GH/3,'#00ff5e',25);playHighScore();}checkMilestone();}
     if(82+22>p.x+4&&82-22<p.x+62){if(FB.bird.y-22<p.gapY||FB.bird.y+22>p.gapY+p.gap){fbDie();return;}}
     if(p.x+62<-20) FB.pipes.splice(i,1);
   }
@@ -1223,12 +1364,23 @@ function tickFlappy(dt){
 }
 
 function fbDie(){
-  FB.st='dead';FB.flashRed=15;
+  FB.st='dead';FB.flashRed=15;FB.shake=22;
+  stopBgMusic();playDeath();
   pSpawn(82,FB.bird.y,'#ff3a3a',20);pSpawn(82,FB.bird.y,'#f5c518',10);
   gameOver(FB.score,'Flappy Beard','flappy');
 }
 
+function checkMilestone(){
+  const milestones=[{s:10,t:'WARMING UP'},{s:20,t:'GETTING HOT'},{s:30,t:'CHAOS MODE'},{s:50,t:'CHAD ZONE'}];
+  for(const m of milestones){
+    if(FB.score===m.s&&FB.lastMilestone<m.s){FB.lastMilestone=m.s;FB.levelFlash=95;FB.levelText=m.t;playLevelUp();pSpawn(GW/2,GH/2,'#f5c518',30);pSpawn(GW/2,GH/2,'#00ff5e',20);break;}
+  }
+}
+
 function drawFlappy(){
+  const sx=FB.shake>0?(Math.random()-.5)*FB.shake*.45:0;
+  const sy=FB.shake>0?(Math.random()-.5)*FB.shake*.45:0;
+  ctx.save();ctx.translate(sx,sy);
   drawBg();drawStars(FB.stars,FB.frame);
   FB.pipes.forEach(p=>drawJeetPipe(p.x,p.gapY,p.gap,p.img));
   ctx.fillStyle='#0a2010';ctx.fillRect(0,GH-26,GW,26);
@@ -1259,6 +1411,32 @@ function drawFlappy(){
     ctx.save();ctx.textAlign='center';ctx.font='bold 80px "Bebas Neue",sans-serif';
     ctx.fillStyle='#ff3a3a';ctx.shadowColor='#ff3a3a';ctx.shadowBlur=30;ctx.fillText('REKT',GW/2,GH/2);ctx.restore();
   }
+  // Level-up flash overlay
+  if(FB.levelFlash>0){
+    const a=Math.min(.5,FB.levelFlash/30);
+    ctx.fillStyle=`rgba(245,197,24,${a})`;ctx.fillRect(-10,-10,GW+20,GH+20);
+    if(FB.levelFlash>25){
+      ctx.save();ctx.textAlign='center';
+      ctx.font='bold 52px "Bebas Neue",sans-serif';
+      ctx.fillStyle='#fff';ctx.shadowColor='#f5c518';ctx.shadowBlur=28;
+      ctx.fillText(FB.levelText,GW/2,GH/2-10);
+      ctx.font='400 10px "DM Mono",monospace';ctx.shadowBlur=0;
+      ctx.fillStyle='rgba(255,255,255,.75)';
+      ctx.fillText('DIFFICULTY INCREASED',GW/2,GH/2+16);
+      ctx.restore();
+    }
+  }
+  // New high score live banner
+  if(FB.hsFlash>0&&FB.st==='playing'){
+    const alpha=Math.min(1,(FB.hsFlash/200)*2.5);
+    ctx.save();ctx.textAlign='center';
+    ctx.font='bold 20px "Bebas Neue",sans-serif';
+    ctx.fillStyle=`rgba(245,197,24,${alpha})`;
+    ctx.shadowColor='#f5c518';ctx.shadowBlur=18;
+    ctx.fillText('\uD83D\uDD25 NEW HIGH SCORE!',GW/2,82);
+    ctx.restore();
+  }
+  ctx.restore(); // end shake translate
 }
 
 function drawJeetPipe(x,gapY,gap,img){
