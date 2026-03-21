@@ -1281,7 +1281,9 @@ function scheduleBgNote(){
     playTone(freq,'square',t,0.11,0.035);
     if(bgNoteIdx%4===0) playTone(freq/2,'triangle',t,0.18,0.045);
   }catch(e){}
-  bgMusicTimeout=setTimeout(scheduleBgNote,145);
+  // Start at 145ms per note, speed up as score increases, cap at 60ms
+  const interval = Math.max(60, 145 - (FB.score||0) * 2);
+  bgMusicTimeout=setTimeout(scheduleBgNote, interval);
 }
 
 function startBgMusic(){
