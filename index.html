@@ -675,7 +675,8 @@ async function submitScoreToCloud(score) {
     xUser: xUsername || 'ANON',
     score,
     date: new Date().toISOString().slice(0, 10),
-    ts: Date.now()
+    ts: Date.now(),
+    gamesPlayed
   });
   // Check existing best first — only write if this is a new high score
   const trySubmit = async () => {
@@ -693,6 +694,26 @@ async function submitScoreToCloud(score) {
     // Retry once after 2s (handles brief network hiccups on mobile)
     setTimeout(() => trySubmit().catch(e => console.warn('Score sync failed:', e)), 2000);
   });
+}
+
+async function syncBestsFromCloud(){
+  if(!walletAddress || !FIREBASE_URL) return;
+  try{
+    const data = await fetch(`${FIREBASE_URL}/leaderboard/${walletAddress}.json`,{mode:'cors'}).then(r=>r.json());
+    if(!data) return;
+    // Sync flappy best
+    if(typeof data.score === 'number' && data.score > (bests.flappy||0)){
+      bests.flappy = data.score;
+      localStorage.setItem(lsKey('flappy'), data.score);
+      const el = document.getElementById('hs-flappy');
+      if(el) el.textContent = data.score;
+    }
+    // Sync games played
+    if(typeof data.gamesPlayed === 'number' && data.gamesPlayed > gamesPlayed){
+      gamesPlayed = data.gamesPlayed;
+      localStorage.setItem(lsGamesKey(), gamesPlayed);
+    }
+  }catch(e){ console.warn('Sync from cloud failed:',e); }
 }
 
 async function fetchCloudScores(weekOnly) {
@@ -786,6 +807,7 @@ function onUserLoggedIn(){
 
   getOrCreateProfile(walletAddress);
   loadBests();
+  syncBestsFromCloud();
   showArcade();
 }
 
