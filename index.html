@@ -701,18 +701,21 @@ async function syncBestsFromCloud(){
   try{
     const data = await fetch(`${FIREBASE_URL}/leaderboard/${walletAddress}.json`,{mode:'cors'}).then(r=>r.json());
     if(!data) return;
+    let changed = false;
     // Sync flappy best
     if(typeof data.score === 'number' && data.score > (bests.flappy||0)){
       bests.flappy = data.score;
       localStorage.setItem(lsKey('flappy'), data.score);
-      const el = document.getElementById('hs-flappy');
-      if(el) el.textContent = data.score;
+      changed = true;
     }
     // Sync games played
     if(typeof data.gamesPlayed === 'number' && data.gamesPlayed > gamesPlayed){
       gamesPlayed = data.gamesPlayed;
       localStorage.setItem(lsGamesKey(), gamesPlayed);
+      changed = true;
     }
+    // Refresh UI with synced values
+    if(changed){ updateStats(); renderProfileCard(); }
   }catch(e){ console.warn('Sync from cloud failed:',e); }
 }
 
