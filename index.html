@@ -1125,20 +1125,22 @@ let bgNoteIdx = 0;
 
 function getAudioCtx(){
   if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-  if(audioCtx.state==='suspended') audioCtx.resume();
+  if(audioCtx.state!=='running') audioCtx.resume();
   return audioCtx;
 }
 
 function playTone(freq,type,start,dur,gain=0.15){
   try{
     const c=getAudioCtx();
+    // Clamp start time so tones are never scheduled at t=0 (iOS drops them)
+    const t=Math.max(start, c.currentTime+0.001);
     const osc=c.createOscillator(),g=c.createGain();
     osc.connect(g);g.connect(c.destination);
-    osc.type=type;osc.frequency.setValueAtTime(freq,start);
-    g.gain.setValueAtTime(0,start);
-    g.gain.linearRampToValueAtTime(gain,start+0.01);
-    g.gain.exponentialRampToValueAtTime(0.001,start+dur);
-    osc.start(start);osc.stop(start+dur+0.02);
+    osc.type=type;osc.frequency.setValueAtTime(freq,t);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(gain,t+0.01);
+    g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    osc.start(t);osc.stop(t+dur+0.02);
   }catch(e){}
 }
 
@@ -1289,15 +1291,15 @@ function initFlappy(){
 }
 
 function fbFlap(){
-  // Unlock Web Audio on mobile (iOS requires a silent buffer played within the user gesture)
+  // Unlock Web Audio on iOS — must create context, play silent buffer, AND call resume()
+  // all within the same synchronous user-gesture handler
   if(!audioCtx){
     audioCtx=new (window.AudioContext||window.webkitAudioContext)();
     const buf=audioCtx.createBuffer(1,1,22050);
     const src=audioCtx.createBufferSource();
     src.buffer=buf;src.connect(audioCtx.destination);src.start(0);
-  } else if(audioCtx.state==='suspended'){
-    audioCtx.resume();
   }
+  if(audioCtx.state!=='running') audioCtx.resume();
   if(FB.st==='idle'){FB.st='playing';FB.bird.vy=-9.5;startBgMusic();}
   else if(FB.st==='playing'){FB.bird.vy=-9.5;pSpawn(82,FB.bird.y,'#00ff5e',5);}
   playFlap();
