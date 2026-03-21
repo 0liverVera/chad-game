@@ -1152,6 +1152,7 @@ let audioCtx = null;
 let bgMusicPlaying = false;
 let bgMusicTimeout = null;
 let bgNoteIdx = 0;
+let bgMusicStartTime = 0;
 let musicEnabled = localStorage.getItem('chad_music') !== 'off';
 
 let iosSilentAudio = null;
@@ -1281,14 +1282,15 @@ function scheduleBgNote(){
     playTone(freq,'square',t,0.11,0.035);
     if(bgNoteIdx%4===0) playTone(freq/2,'triangle',t,0.18,0.045);
   }catch(e){}
-  // Start at 250ms, -25ms every 10 points, cap at 80ms
-  const interval = Math.max(80, 250 - Math.floor((FB.score||0) / 10) * 25);
+  // Start at 250ms, shave ~5ms every 3 seconds continuously, cap at 80ms
+  const elapsed = (Date.now() - bgMusicStartTime) / 1000;
+  const interval = Math.max(80, 250 - (elapsed / 3) * 5);
   bgMusicTimeout=setTimeout(scheduleBgNote, interval);
 }
 
 function startBgMusic(){
   if(bgMusicPlaying || !musicEnabled) return;
-  bgMusicPlaying=true;bgNoteIdx=0;
+  bgMusicPlaying=true;bgNoteIdx=0;bgMusicStartTime=Date.now();
   scheduleBgNote();
 }
 
